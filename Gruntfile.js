@@ -9,7 +9,7 @@ module.exports = function( grunt ) {
 
 		addtextdomain: {
 			options: {
-				textdomain: 'wp-post-upsert-webhook',
+				textdomain: 'wp-post-upsert-webhooks',
 			},
 			update_all_domains: {
 				options: {
@@ -32,8 +32,8 @@ module.exports = function( grunt ) {
 				options: {
 					domainPath: '/languages',
 					exclude: [ '\.git/*', 'bin/*', 'node_modules/*', 'tests/*' ],
-					mainFile: 'wp-post-upsert-webhook.php',
-					potFilename: 'wp-post-upsert-webhook.pot',
+					mainFile: 'wp-post-upsert-webhooks.php',
+					potFilename: 'wp-post-upsert-webhooks.pot',
 					potHeaders: {
 						poedit: true,
 						'x-poedit-keywordslist': true

@@ -1,13 +1,13 @@
 
 {
-  "name": "wp-post-upsert-webhook",
+  "name": "wp-post-upsert-webhooks",
   "version": "0.1.0",
   "main": "Gruntfile.js",
-  "author": "YOUR NAME HERE",
-  "scripts" : {
-    "start" : "grunt default" ,
-    "readme" : "grunt readme",
-    "i18n" : "grunt i18n"
+  "author": "Kuba Serafinowski",
+  "scripts": {
+    "start": "grunt default",
+    "readme": "grunt readme",
+    "i18n": "grunt i18n"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
