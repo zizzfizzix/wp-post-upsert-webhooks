@@ -21,6 +21,23 @@ class WP_Post_Upsert_Webhook {
     private $options;
     private $option_name = 'wp_post_upsert_webhook_settings';
 
+    private static $default_config = array(
+        'enabled' => false,
+        'name' => '',
+        'url' => '',
+        'http_method' => 'POST',
+        'bearer_token' => '',
+        'suppress_duplicates' => true,
+        'post_types' => array('post'),
+        'post_statuses' => array('publish'),
+        'idempotency_fields' => array('title', 'content', 'status', 'slug'),
+        'retry_settings' => array(
+            'enabled' => true,
+            'max_retries' => 3,
+            'delays' => array(30, 300, 3600)
+        )
+    );
+
     public static function get_instance() {
         if (self::$instance === null) {
             self::$instance = new self();
@@ -98,24 +115,13 @@ class WP_Post_Upsert_Webhook {
     }
 
     private function get_default_webhook_config() {
-        return array(
-            'enabled' => true,
-            'name' => '',
-            'url' => '',
-            'http_method' => 'POST',
-            'bearer_token' => '',
-            'suppress_duplicates' => false,
-            'post_statuses' => array(),
-            'idempotency_fields' => array('title', 'content', 'status', 'event_type'),
-            'retry_settings' => array(
-                'enabled' => true,
-                'max_retries' => 3,
-                'delays' => array(30, 300, 3600)
-            )
-        );
+        return self::$default_config;
     }
 
     private function render_webhook_config($index, $webhook) {
+        // Ensure all required fields have default values
+        $webhook = wp_parse_args($webhook, self::$default_config);
+
         $base_name = $this->option_name . '[webhooks][' . $index . ']';
         ?>
         <div class="webhook-endpoint" style="background: #fff; padding: 15px; margin: 10px 0; border: 1px solid #ccc;">
@@ -178,6 +184,20 @@ class WP_Post_Upsert_Webhook {
                            <?php checked(!empty($webhook['suppress_duplicates'])); ?>>
                     Suppress duplicate updates
                 </label>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Post Types:</label>
+                <?php
+                $post_types = get_post_types(array('public' => true), 'objects');
+                foreach ($post_types as $post_type) {
+                    $checked = in_array($post_type->name, $webhook['post_types']) ? 'checked' : '';
+                    echo '<label style="display: block; margin-bottom: 5px;">';
+                    echo '<input type="checkbox" name="' . $base_name . '[post_types][]" value="' . esc_attr($post_type->name) . '" ' . $checked . '>';
+                    echo ' ' . esc_html($post_type->labels->singular_name);
+                    echo '</label>';
+                }
+                ?>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -303,7 +323,7 @@ class WP_Post_Upsert_Webhook {
 
     public function sanitize_settings($input) {
         if (!is_array($input) || !isset($input['webhooks'])) {
-            return $this->get_default_webhook_config();
+            return array('webhooks' => array(self::$default_config));
         }
 
         $sanitized = array();
@@ -314,17 +334,18 @@ class WP_Post_Upsert_Webhook {
                 'enabled' => !empty($webhook['enabled']),
                 'name' => sanitize_text_field($webhook['name']),
                 'url' => esc_url_raw($webhook['url']),
-                'http_method' => in_array($webhook['http_method'], array('POST', 'GET')) ? $webhook['http_method'] : 'POST',
+                'http_method' => in_array($webhook['http_method'], array('POST', 'GET')) ? $webhook['http_method'] : self::$default_config['http_method'],
                 'bearer_token' => sanitize_text_field($webhook['bearer_token']),
                 'suppress_duplicates' => !empty($webhook['suppress_duplicates']),
-                'post_statuses' => isset($webhook['post_statuses']) ? array_map('sanitize_text_field', $webhook['post_statuses']) : array(),
-                'idempotency_fields' => isset($webhook['idempotency_fields']) ? array_map('sanitize_text_field', $webhook['idempotency_fields']) : array(),
+                'post_types' => isset($webhook['post_types']) ? array_map('sanitize_text_field', $webhook['post_types']) : self::$default_config['post_types'],
+                'post_statuses' => isset($webhook['post_statuses']) ? array_map('sanitize_text_field', $webhook['post_statuses']) : self::$default_config['post_statuses'],
+                'idempotency_fields' => isset($webhook['idempotency_fields']) ? array_map('sanitize_text_field', $webhook['idempotency_fields']) : self::$default_config['idempotency_fields'],
                 'retry_settings' => array(
                     'enabled' => !empty($webhook['retry_settings']['enabled']),
                     'max_retries' => min(10, max(1, intval($webhook['retry_settings']['max_retries']))),
                     'delays' => isset($webhook['retry_settings']['delays'])
                         ? array_map('intval', array_slice($webhook['retry_settings']['delays'], 0, 3))
-                        : array(30, 300, 3600)
+                        : self::$default_config['retry_settings']['delays']
                 )
             );
         }
@@ -348,6 +369,11 @@ class WP_Post_Upsert_Webhook {
         foreach ($webhooks as $webhook) {
             // Skip disabled webhooks
             if (empty($webhook['enabled']) || empty($webhook['url'])) {
+                continue;
+            }
+
+            // Skip if post type is not monitored
+            if (!in_array($post->post_type, $webhook['post_types'])) {
                 continue;
             }
 
@@ -400,7 +426,7 @@ class WP_Post_Upsert_Webhook {
     }
 
     private function get_content_hash($post, $webhook) {
-        $fields = isset($webhook['idempotency_fields']) ? $webhook['idempotency_fields'] : array('title', 'content', 'status', 'event_type');
+        $fields = isset($webhook['idempotency_fields']) ? $webhook['idempotency_fields'] : self::$default_config['idempotency_fields'];
         $hash_parts = array();
 
         foreach ($fields as $field) {
@@ -436,7 +462,7 @@ class WP_Post_Upsert_Webhook {
     }
 
     private function get_stable_idempotency_key($post, $event_type, $webhook) {
-        $fields = isset($webhook['idempotency_fields']) ? $webhook['idempotency_fields'] : array('title', 'content', 'status', 'event_type');
+        $fields = isset($webhook['idempotency_fields']) ? $webhook['idempotency_fields'] : self::$default_config['idempotency_fields'];
 
         $key_parts = array(
             $post->ID,
