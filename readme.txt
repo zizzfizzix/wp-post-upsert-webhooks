@@ -1,115 +1,96 @@
-=== Wp Post Upsert Webhook ===
-Contributors: (this should be a list of wordpress.org userid's)
-Donate link: https://example.com/
-Tags: comments, spam
-Requires at least: 4.5
+=== Post Upsert Webhooks ===
+Contributors: kuba-serafinowski
+Tags: webhooks, api, integration, posts, automation, rest-api
+Requires at least: 5.0
 Tested up to: 6.7.1
-Requires PHP: 5.6
+Requires PHP: 7.0
 Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Send reliable webhooks for post creation, updates, and status changes with configurable endpoints, retry logic, and idempotency support.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+WP Post Upsert Webhooks enables WordPress sites to send reliable webhook notifications when posts are created, updated, or their status changes. Perfect for integrating WordPress with external services, headless CMS setups, or custom automation workflows.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+**Key Features:**
 
-A few notes about the sections above:
+* Configure multiple webhook endpoints with different settings
+* Support for POST and GET HTTP methods
+* Flexible post type and status filtering
+* Robust retry mechanism with configurable delays
+* Idempotency support to prevent duplicate notifications
+* Bearer token authentication support
+* Detailed post data including meta fields
+* Event-based triggers (create, update, status change)
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+**Use Cases:**
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+* Sync content with external systems
+* Trigger automated workflows
+* Update caches or static sites
+* Integrate with third-party services
+* Build decoupled WordPress architectures
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+**Technical Details:**
+
+The plugin sends comprehensive post data including:
+
+* Post ID, title, content, and excerpt
+* Author information
+* Categories and tags
+* Custom fields (post meta)
+* Status transitions
+* Permalinks
+* Creation and modification dates
+
+Each webhook request includes idempotency keys and webhook-specific headers for reliable delivery and duplicate prevention.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
-1. Upload `plugin-name.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+1. Upload the plugin files to the `/wp-content/plugins/wp-post-upsert-webhooks` directory, or install the plugin through the WordPress plugins screen
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Go to Settings > WP Post Upsert Webhooks to configure your webhook endpoints
+4. For each webhook, configure:
+   * Endpoint URL
+   * HTTP method (POST/GET)
+   * Post types to monitor
+   * Post statuses to track
+   * Bearer token (if required)
+   * Retry settings
+   * Idempotency fields
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= What data is included in the webhook payload? =
 
-An answer to that question.
+The webhook payload includes comprehensive post data including title, content, excerpt, author details, categories, tags, meta fields, and status information. See the technical details section for a complete list.
 
-= What about foo bar? =
+= How does the retry mechanism work? =
 
-Answer to foo bar dilemma.
+If a webhook delivery fails, the plugin will automatically retry based on your configured settings. You can set the number of retry attempts and the delay between each attempt.
 
-== Screenshots ==
+= How does idempotency work? =
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+The plugin generates unique idempotency keys based on your configured fields (content, title, status, etc.). This ensures that identical updates don't trigger multiple webhooks, preventing duplicate processing.
+
+= Can I send webhooks for specific post types only? =
+
+Yes, you can configure each webhook endpoint to monitor specific post types and statuses. This allows you to have different webhooks for different content types.
 
 == Changelog ==
 
-= 1.0 =
-* A change since the previous version.
-* Another change.
-
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+= 0.1.0 =
+* Initial release
+* Support for multiple webhook endpoints
+* Configurable retry logic
+* Idempotency support
+* Bearer token authentication
+* POST and GET HTTP methods
+* Comprehensive post data payload
 
 == Upgrade Notice ==
 
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](https://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: https://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+= 0.1.0 =
+Initial release of WP Post Upsert Webhooks
