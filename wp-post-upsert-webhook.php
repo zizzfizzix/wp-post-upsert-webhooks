@@ -101,16 +101,138 @@ class WP_Post_Upsert_Webhook {
             $webhooks = array($this->get_default_webhook_config());
         }
 
-        echo '<div id="webhook-endpoints">';
+        // Sort webhooks: enabled first, then by name
+        usort($webhooks, function($a, $b) {
+            // First sort by enabled status
+            if (!empty($a['enabled']) && empty($b['enabled'])) return -1;
+            if (empty($a['enabled']) && !empty($b['enabled'])) return 1;
+
+            // Then sort by name
+            $name_a = empty($a['name']) ? 'Unnamed Webhook' : $a['name'];
+            $name_b = empty($b['name']) ? 'Unnamed Webhook' : $b['name'];
+            return strcasecmp($name_a, $name_b);
+        });
+
+        // Add some CSS for the layout
+        ?>
+        <style>
+            .webhook-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+            .webhook-endpoint {
+                background: #fff;
+                border: 1px solid #ccc;
+                margin: 0;
+                width: 100%;
+            }
+            .webhook-header {
+                padding: 15px;
+                background: #f5f5f5;
+                border-bottom: 1px solid #ccc;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .webhook-header h3 {
+                margin: 0;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .webhook-content {
+                padding: 15px;
+                display: block;
+            }
+            .webhook-content.collapsed {
+                display: none;
+            }
+            .webhook-status {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                display: inline-block;
+            }
+            .webhook-status.enabled {
+                background: #46b450;
+            }
+            .webhook-status.disabled {
+                background: #dc3232;
+            }
+            .webhook-settings-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            .webhook-settings-full {
+                grid-column: 1 / -1;
+            }
+            .collapse-indicator {
+                margin-left: 10px;
+                width: 20px;
+                height: 20px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                transition: transform 0.2s;
+            }
+            .webhook-endpoint .webhook-content.collapsed ~ .webhook-header .collapse-indicator,
+            .webhook-endpoint .webhook-content.initially-collapsed ~ .webhook-header .collapse-indicator {
+                transform: rotate(-90deg);
+            }
+            .webhook-endpoint .webhook-content.collapsed + .webhook-header .collapse-indicator,
+            .webhook-endpoint .webhook-content.initially-collapsed + .webhook-header .collapse-indicator {
+                display: none;
+            }
+            .webhook-endpoint {
+                background: #fff;
+                border: 1px solid #ccc;
+                margin: 0;
+                width: 100%;
+            }
+            .webhook-header {
+                padding: 15px;
+                background: #f5f5f5;
+                border-bottom: 1px solid #ccc;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .webhook-content {
+                padding: 15px;
+            }
+            .webhook-content.collapsed,
+            .webhook-content.initially-collapsed {
+                display: none;
+            }
+            .webhook-header .collapse-indicator {
+                transition: transform 0.2s;
+            }
+            .webhook-header .collapse-indicator.rotated {
+                transform: rotate(-90deg);
+            }
+        </style>
+
+        <div class="webhook-grid" id="webhook-endpoints">
+        <?php
         foreach ($webhooks as $index => $webhook) {
-            $this->render_webhook_config($index, $webhook);
+            $this->render_webhook_config($index, $webhook, $index !== 0);
         }
-        echo '</div>';
+        ?>
+        </div>
 
-        echo '<div class="webhook-actions" style="margin-top: 15px;">';
-        echo '<button type="button" class="button" onclick="addWebhookEndpoint()">Add Another Webhook</button>';
-        echo '</div>';
+        <div class="webhook-actions" style="margin-top: 15px;">
+            <button type="button" class="button" onclick="addWebhookEndpoint()">Add Another Webhook</button>
+        </div>
 
+        <?php
         $this->render_webhook_template();
     }
 
@@ -118,158 +240,177 @@ class WP_Post_Upsert_Webhook {
         return self::$default_config;
     }
 
-    private function render_webhook_config($index, $webhook) {
+    private function render_webhook_config($index, $webhook, $collapsed = false) {
         // Ensure all required fields have default values
         $webhook = wp_parse_args($webhook, self::$default_config);
-
         $base_name = $this->option_name . '[webhooks][' . $index . ']';
+        $webhook_title = !empty($webhook['name']) ? esc_html($webhook['name']) : 'Unnamed Webhook';
         ?>
-        <div class="webhook-endpoint" style="background: #fff; padding: 15px; margin: 10px 0; border: 1px solid #ccc;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                <h3 style="margin: 0;">Webhook Configuration</h3>
-                <button type="button" class="button button-link-delete" onclick="removeWebhookEndpoint(this)">Remove</button>
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">
-                    <input type="checkbox"
-                           name="<?php echo $base_name; ?>[enabled]"
-                           value="1"
-                           <?php checked(!empty($webhook['enabled'])); ?>>
-                    Enable this webhook
-                </label>
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">Name:</label>
-                <input type="text"
-                       name="<?php echo $base_name; ?>[name]"
-                       value="<?php echo esc_attr($webhook['name']); ?>"
-                       class="regular-text"
-                       placeholder="Webhook name for identification">
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">URL:</label>
-                <input type="url"
-                       name="<?php echo $base_name; ?>[url]"
-                       value="<?php echo esc_url($webhook['url']); ?>"
-                       class="regular-text">
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">HTTP Method:</label>
-                <select name="<?php echo $base_name; ?>[http_method]">
-                    <option value="POST" <?php selected($webhook['http_method'], 'POST'); ?>>POST</option>
-                    <option value="GET" <?php selected($webhook['http_method'], 'GET'); ?>>GET</option>
-                </select>
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">Bearer Token:</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="password"
-                           name="<?php echo $base_name; ?>[bearer_token]"
-                           value="<?php echo esc_attr($webhook['bearer_token']); ?>"
-                           class="regular-text">
-                    <button type="button" class="button" onclick="toggleTokenVisibility(this)">Show</button>
+        <div class="webhook-endpoint">
+            <div class="webhook-header" onclick="toggleWebhook(this)">
+                <h3>
+                    <span class="webhook-status <?php echo !empty($webhook['enabled']) ? 'enabled' : 'disabled'; ?>"></span>
+                    <span class="webhook-title"><?php echo $webhook_title; ?></span>
+                </h3>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button type="button" class="button button-link-delete" onclick="event.stopPropagation(); removeWebhookEndpoint(this)">Remove</button>
+                    <span class="collapse-indicator<?php echo $collapsed ? ' rotated' : ''; ?>">▼</span>
                 </div>
             </div>
+            <div class="webhook-content<?php echo $collapsed ? ' collapsed' : ''; ?>">
+                <div class="webhook-settings-grid">
+                    <!-- Full width settings -->
+                    <div class="webhook-settings-full">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="checkbox"
+                                       name="<?php echo $base_name; ?>[enabled]"
+                                       value="1"
+                                       <?php checked(!empty($webhook['enabled'])); ?>>
+                                Enable this webhook
+                            </label>
+                        </div>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">
-                    <input type="checkbox"
-                           name="<?php echo $base_name; ?>[suppress_duplicates]"
-                           value="1"
-                           <?php checked(!empty($webhook['suppress_duplicates'])); ?>>
-                    Suppress duplicate updates
-                </label>
-            </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">Name:</label>
+                            <input type="text"
+                                   name="<?php echo $base_name; ?>[name]"
+                                   value="<?php echo esc_attr($webhook['name']); ?>"
+                                   class="regular-text webhook-name-input"
+                                   placeholder="Webhook name for identification"
+                                   onchange="updateWebhookTitle(this)">
+                        </div>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">Post Types:</label>
-                <?php
-                $post_types = get_post_types(array('public' => true), 'objects');
-                foreach ($post_types as $post_type) {
-                    $checked = in_array($post_type->name, $webhook['post_types']) ? 'checked' : '';
-                    echo '<label style="display: block; margin-bottom: 5px;">';
-                    echo '<input type="checkbox" name="' . $base_name . '[post_types][]" value="' . esc_attr($post_type->name) . '" ' . $checked . '>';
-                    echo ' ' . esc_html($post_type->labels->singular_name);
-                    echo '</label>';
-                }
-                ?>
-            </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">URL:</label>
+                            <input type="url"
+                                   name="<?php echo $base_name; ?>[url]"
+                                   value="<?php echo esc_url($webhook['url']); ?>"
+                                   class="regular-text">
+                        </div>
+                    </div>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">Post Statuses:</label>
-                <?php
-                $statuses = array('publish', 'pending', 'draft', 'private');
-                foreach ($statuses as $status) {
-                    $checked = in_array($status, $webhook['post_statuses']) ? 'checked' : '';
-                    echo '<label style="display: block; margin-bottom: 5px;">';
-                    echo '<input type="checkbox" name="' . $base_name . '[post_statuses][]" value="' . $status . '" ' . $checked . '>';
-                    echo ' ' . ucfirst($status);
-                    echo '</label>';
-                }
-                ?>
-            </div>
+                    <!-- Left column -->
+                    <div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">HTTP Method:</label>
+                            <select name="<?php echo $base_name; ?>[http_method]">
+                                <option value="POST" <?php selected($webhook['http_method'], 'POST'); ?>>POST</option>
+                                <option value="GET" <?php selected($webhook['http_method'], 'GET'); ?>>GET</option>
+                            </select>
+                        </div>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">Idempotency Fields:</label>
-                <?php
-                $fields = array(
-                    'title' => 'Title',
-                    'content' => 'Content',
-                    'excerpt' => 'Excerpt',
-                    'status' => 'Status',
-                    'slug' => 'Slug',
-                    'event_type' => 'Event Type',
-                    'categories' => 'Categories',
-                    'tags' => 'Tags',
-                    'author' => 'Author'
-                );
-                foreach ($fields as $field => $label) {
-                    $checked = in_array($field, $webhook['idempotency_fields']) ? 'checked' : '';
-                    echo '<label style="display: block; margin-bottom: 5px;">';
-                    echo '<input type="checkbox" name="' . $base_name . '[idempotency_fields][]" value="' . $field . '" ' . $checked . '>';
-                    echo ' ' . $label;
-                    echo '</label>';
-                }
-                ?>
-            </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">Bearer Token:</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="password"
+                                       name="<?php echo $base_name; ?>[bearer_token]"
+                                       value="<?php echo esc_attr($webhook['bearer_token']); ?>"
+                                       class="regular-text">
+                                <button type="button" class="button" onclick="toggleTokenVisibility(this)">Show</button>
+                            </div>
+                        </div>
 
-            <div class="retry-settings" style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">
-                    <input type="checkbox"
-                           name="<?php echo $base_name; ?>[retry_settings][enabled]"
-                           value="1"
-                           <?php checked(!empty($webhook['retry_settings']['enabled'])); ?>>
-                    Enable automatic retries
-                </label>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">Post Types:</label>
+                            <?php
+                            $post_types = get_post_types(array('public' => true), 'objects');
+                            foreach ($post_types as $post_type) {
+                                $checked = in_array($post_type->name, $webhook['post_types']) ? 'checked' : '';
+                                echo '<label style="display: block; margin-bottom: 5px;">';
+                                echo '<input type="checkbox" name="' . $base_name . '[post_types][]" value="' . esc_attr($post_type->name) . '" ' . $checked . '>';
+                                echo ' ' . esc_html($post_type->labels->singular_name);
+                                echo '</label>';
+                            }
+                            ?>
+                        </div>
 
-                <div style="margin-top: 10px;">
-                    <label style="display: block; margin-bottom: 5px;">Maximum retry attempts:</label>
-                    <input type="number"
-                           name="<?php echo $base_name; ?>[retry_settings][max_retries]"
-                           value="<?php echo esc_attr($webhook['retry_settings']['max_retries']); ?>"
-                           min="1"
-                           max="10"
-                           class="small-text">
-                </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">Post Statuses:</label>
+                            <?php
+                            $statuses = array('publish', 'pending', 'draft', 'private');
+                            foreach ($statuses as $status) {
+                                $checked = in_array($status, $webhook['post_statuses']) ? 'checked' : '';
+                                echo '<label style="display: block; margin-bottom: 5px;">';
+                                echo '<input type="checkbox" name="' . $base_name . '[post_statuses][]" value="' . $status . '" ' . $checked . '>';
+                                echo ' ' . ucfirst($status);
+                                echo '</label>';
+                            }
+                            ?>
+                        </div>
+                    </div>
 
-                <div style="margin-top: 10px;">
-                    <label style="display: block; margin-bottom: 5px;">Retry delays (seconds):</label>
-                    <div style="display: flex; gap: 10px;">
-                        <?php foreach ($webhook['retry_settings']['delays'] as $index => $delay) : ?>
-                            <div>
-                                <label>Attempt <?php echo $index + 1; ?>:</label>
+                    <!-- Right column -->
+                    <div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="checkbox"
+                                       name="<?php echo $base_name; ?>[suppress_duplicates]"
+                                       value="1"
+                                       <?php checked(!empty($webhook['suppress_duplicates'])); ?>>
+                                Suppress duplicate updates
+                            </label>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">Idempotency Fields:</label>
+                            <?php
+                            $fields = array(
+                                'title' => 'Title',
+                                'content' => 'Content',
+                                'excerpt' => 'Excerpt',
+                                'status' => 'Status',
+                                'slug' => 'Slug',
+                                'event_type' => 'Event Type',
+                                'categories' => 'Categories',
+                                'tags' => 'Tags',
+                                'author' => 'Author'
+                            );
+                            foreach ($fields as $field => $label) {
+                                $checked = in_array($field, $webhook['idempotency_fields']) ? 'checked' : '';
+                                echo '<label style="display: block; margin-bottom: 5px;">';
+                                echo '<input type="checkbox" name="' . $base_name . '[idempotency_fields][]" value="' . $field . '" ' . $checked . '>';
+                                echo ' ' . $label;
+                                echo '</label>';
+                            }
+                            ?>
+                        </div>
+
+                        <div class="retry-settings" style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="checkbox"
+                                       name="<?php echo $base_name; ?>[retry_settings][enabled]"
+                                       value="1"
+                                       <?php checked(!empty($webhook['retry_settings']['enabled'])); ?>>
+                                Enable automatic retries
+                            </label>
+
+                            <div style="margin-top: 10px;">
+                                <label style="display: block; margin-bottom: 5px;">Maximum retry attempts:</label>
                                 <input type="number"
-                                       name="<?php echo $base_name; ?>[retry_settings][delays][]"
-                                       value="<?php echo esc_attr($delay); ?>"
+                                       name="<?php echo $base_name; ?>[retry_settings][max_retries]"
+                                       value="<?php echo esc_attr($webhook['retry_settings']['max_retries']); ?>"
                                        min="1"
+                                       max="10"
                                        class="small-text">
                             </div>
-                        <?php endforeach; ?>
+
+                            <div style="margin-top: 10px;">
+                                <label style="display: block; margin-bottom: 5px;">Retry delays (seconds):</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <?php foreach ($webhook['retry_settings']['delays'] as $index => $delay) : ?>
+                                        <div>
+                                            <label>Attempt <?php echo $index + 1; ?>:</label>
+                                            <input type="number"
+                                                   name="<?php echo $base_name; ?>[retry_settings][delays][]"
+                                                   value="<?php echo esc_attr($delay); ?>"
+                                                   min="1"
+                                                   class="small-text">
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -280,7 +421,7 @@ class WP_Post_Upsert_Webhook {
     private function render_webhook_template() {
         ?>
         <template id="webhook-template">
-            <?php $this->render_webhook_config('{{INDEX}}', $this->get_default_webhook_config()); ?>
+            <?php $this->render_webhook_config('{{INDEX}}', $this->get_default_webhook_config(), true); ?>
         </template>
 
         <script>
@@ -316,6 +457,21 @@ class WP_Post_Upsert_Webhook {
                 input.type = 'password';
                 button.textContent = 'Show';
             }
+        }
+
+        function toggleWebhook(header) {
+            const endpoint = header.closest('.webhook-endpoint');
+            const content = endpoint.querySelector('.webhook-content');
+            const indicator = header.querySelector('.collapse-indicator');
+
+            content.classList.toggle('collapsed');
+            indicator.classList.toggle('rotated');
+        }
+
+        function updateWebhookTitle(input) {
+            const title = input.value || 'Unnamed Webhook';
+            const header = input.closest('.webhook-endpoint').querySelector('.webhook-title');
+            header.textContent = title;
         }
         </script>
         <?php
