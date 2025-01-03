@@ -4,8 +4,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WP_Post_Upsert_Webhook_Settings {
-    private $option_name = 'wp_post_upsert_webhook_settings';
+class WP_Post_Upsert_Webhooks_Settings {
+    private $option_name = 'wp_post_upsert_webhooks_settings';
     private $options;
 
     public static $default_config = array(
@@ -39,24 +39,24 @@ class WP_Post_Upsert_Webhook_Settings {
 
         wp_enqueue_style(
             'wp-post-upsert-webhook-admin',
-            plugins_url('assets/css/admin.css', WP_POST_UPSERT_WEBHOOK_FILE),
+            plugins_url('assets/css/admin.css', WP_POST_UPSERT_WEBHOOKS_FILE),
             array(),
-            WP_POST_UPSERT_WEBHOOK_VERSION
+            WP_POST_UPSERT_WEBHOOKS_VERSION
         );
 
         wp_enqueue_script(
             'wp-post-upsert-webhook-admin',
-            plugins_url('assets/js/admin.js', WP_POST_UPSERT_WEBHOOK_FILE),
+            plugins_url('assets/js/admin.js', WP_POST_UPSERT_WEBHOOKS_FILE),
             array('jquery'),
-            WP_POST_UPSERT_WEBHOOK_VERSION,
+            WP_POST_UPSERT_WEBHOOKS_VERSION,
             true
         );
     }
 
     public function add_settings_page() {
         add_options_page(
-            'Post Webhook Settings',
-            'Post Webhook',
+            'Post Upsert Webhooks Settings',
+            'Post Upsert Webhooks',
             'manage_options',
             'wp-post-upsert-webhook',
             array($this, 'render_settings_page')
@@ -71,7 +71,7 @@ class WP_Post_Upsert_Webhook_Settings {
         if (!current_user_can('manage_options')) {
             return;
         }
-        require_once plugin_dir_path(WP_POST_UPSERT_WEBHOOK_FILE) . 'includes/views/settings-page.php';
+        require_once plugin_dir_path(WP_POST_UPSERT_WEBHOOKS_FILE) . 'includes/views/settings-page.php';
     }
 
     public function register_settings() {
@@ -100,7 +100,7 @@ class WP_Post_Upsert_Webhook_Settings {
             return strcasecmp($name_a, $name_b);
         });
 
-        require plugin_dir_path(WP_POST_UPSERT_WEBHOOK_FILE) . 'includes/views/webhooks-section.php';
+        require plugin_dir_path(WP_POST_UPSERT_WEBHOOKS_FILE) . 'includes/views/webhooks-section.php';
     }
 
     public function sanitize_settings($input) {

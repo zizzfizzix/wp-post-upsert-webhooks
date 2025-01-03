@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap file.
  *
- * @package Wp_Post_Upsert_Webhook
+ * @package Wp_Post_Upsert_Webhooks
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );

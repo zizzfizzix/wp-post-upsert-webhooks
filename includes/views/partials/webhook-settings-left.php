@@ -41,7 +41,7 @@ if (!defined('ABSPATH')) {
     </div>
 
     <div class="webhook-setting">
-        <label>Listen to event for Posts in these Statuses:</label>
+        <label>Listen to changes for Posts in these Statuses:</label>
         <?php
         $statuses = array('publish', 'pending', 'draft', 'private');
         foreach ($statuses as $status) :

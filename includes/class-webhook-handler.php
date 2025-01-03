@@ -4,13 +4,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WP_Post_Upsert_Webhook_Handler {
+class WP_Post_Upsert_Webhooks_Handler {
     private $settings;
 
     public function __construct($settings) {
         $this->settings = $settings;
         add_action('transition_post_status', array($this, 'handle_post_event'), 10, 3);
-        add_action('wp_post_upsert_webhook_retry', array($this, 'retry_webhook'), 10, 2);
+        add_action('wp_post_upsert_webhooks_retry', array($this, 'retry_webhook'), 10, 2);
     }
 
     public function handle_post_event($new_status, $old_status, $post) {
@@ -213,7 +213,7 @@ class WP_Post_Upsert_Webhook_Handler {
 
             wp_schedule_single_event(
                 time() + $webhook['retry_settings']['delays'][$retry_count],
-                'wp_post_upsert_webhook_retry',
+                'wp_post_upsert_webhooks_retry',
                 array($data, $webhook)
             );
         }

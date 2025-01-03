@@ -2,7 +2,7 @@
 /**
  * Class SampleTest
  *
- * @package Wp_Post_Upsert_Webhook
+ * @package Wp_Post_Upsert_Webhooks
  */
 
 /**

@@ -31,7 +31,7 @@ if (!defined('ABSPATH')) {
 <template id="webhook-template">
     <?php
     // Render template for new webhooks
-    $webhook = WP_Post_Upsert_Webhook_Settings::$default_config;
+    $webhook = WP_Post_Upsert_Webhooks_Settings::$default_config;
     $index = '{{INDEX}}';
     $is_collapsed = false;
     include plugin_dir_path(__FILE__) . 'webhook-template.php';
