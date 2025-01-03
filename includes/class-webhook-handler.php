@@ -133,6 +133,7 @@ class WP_Post_Upsert_Webhook_Handler {
                 'excerpt' => $post->post_excerpt,
                 'status' => $post->post_status,
                 'slug' => $post->post_name,
+				'type' => $post->post_type,
                 'permalink' => get_permalink($post->ID),
                 'date_created' => $post->post_date_gmt,
                 'date_modified' => $post->post_modified_gmt,
