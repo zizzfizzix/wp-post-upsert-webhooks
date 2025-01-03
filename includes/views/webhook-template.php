@@ -61,7 +61,7 @@ $index = isset($template_index) ? $template_index : 0;
                 </div>
 
                 <div class="webhook-setting">
-                    <label>Bearer Token:</label>
+                    <label>Authorization Bearer Token:</label>
                     <div class="webhook-setting-group">
                         <input type="password"
                                name="<?php echo $this->option_name; ?>[webhooks][<?php echo $index; ?>][bearer_token]"
@@ -72,7 +72,7 @@ $index = isset($template_index) ? $template_index : 0;
                 </div>
 
                 <div class="webhook-setting">
-                    <label>Post Types:</label>
+                    <label>Listen to changes of these Post Types:</label>
                     <?php
                     $post_types = get_post_types(array('public' => true), 'objects');
                     foreach ($post_types as $post_type) :
@@ -89,7 +89,7 @@ $index = isset($template_index) ? $template_index : 0;
                 </div>
 
                 <div class="webhook-setting">
-                    <label>Post Statuses:</label>
+                    <label>Listen to event for Posts in these Statuses:</label>
                     <?php
                     $statuses = array('publish', 'pending', 'draft', 'private');
                     foreach ($statuses as $status) :
@@ -114,12 +114,12 @@ $index = isset($template_index) ? $template_index : 0;
                                name="<?php echo $this->option_name; ?>[webhooks][<?php echo $index; ?>][suppress_duplicates]"
                                value="1"
                                <?php checked(!empty($webhook['suppress_duplicates'])); ?>>
-                        Suppress duplicate updates
+                        Suppress duplicate webhook invocations based on the idempotency key. If unset webhook might be triggered on unimportant changes (see Idempotency Fields).
                     </label>
                 </div>
 
                 <div class="webhook-setting">
-                    <label>Idempotency Fields:</label>
+                    <label>Idempotency Fields (changes to these fields will trigger the webhook):</label>
                     <?php
                     $fields = array(
                         'title' => 'Title',
@@ -151,7 +151,7 @@ $index = isset($template_index) ? $template_index : 0;
                                name="<?php echo $this->option_name; ?>[webhooks][<?php echo $index; ?>][retry_settings][enabled]"
                                value="1"
                                <?php checked(!empty($webhook['retry_settings']['enabled'])); ?>>
-                        Enable automatic retries
+                        Enable automatic retries (in case of unsuccessful request)
                     </label>
 
                     <div class="retry-setting">

@@ -187,7 +187,7 @@ if (!defined('ABSPATH')) {
 </div>
 
 <div class="webhook-actions">
-    <button type="button" class="button" onclick="addWebhookEndpoint()">Add Another Webhook</button>
+    <button type="button" class="button" onclick="addWebhookEndpoint()">Add Webhook</button>
 </div>
 
 <template id="webhook-template">
