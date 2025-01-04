@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     <form action="options.php" method="post">
         <?php
         settings_fields($this->option_name);
-        do_settings_sections('wp-post-upsert-webhook');
+        do_settings_sections('wp-post-upsert-webhooks');
         submit_button();
         ?>
     </form>

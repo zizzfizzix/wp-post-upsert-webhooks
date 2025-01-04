@@ -42,19 +42,19 @@ class WP_Post_Upsert_Webhooks_Settings {
     }
 
     public function enqueue_admin_assets($hook) {
-        if ('settings_page_wp-post-upsert-webhook' !== $hook) {
+        if ('settings_page_wp-post-upsert-webhooks' !== $hook) {
             return;
         }
 
         wp_enqueue_style(
-            'wp-post-upsert-webhook-admin',
+            'wp-post-upsert-webhooks-admin',
             plugins_url('assets/css/admin.css', WP_POST_UPSERT_WEBHOOKS_FILE),
             array(),
             WP_POST_UPSERT_WEBHOOKS_VERSION
         );
 
         wp_enqueue_script(
-            'wp-post-upsert-webhook-admin',
+            'wp-post-upsert-webhooks-admin',
             plugins_url('assets/js/admin.js', WP_POST_UPSERT_WEBHOOKS_FILE),
             array('jquery'),
             WP_POST_UPSERT_WEBHOOKS_VERSION,
@@ -67,7 +67,7 @@ class WP_Post_Upsert_Webhooks_Settings {
             'Post Upsert Webhooks Settings',
             'Post Upsert Webhooks',
             'manage_options',
-            'wp-post-upsert-webhook',
+            'wp-post-upsert-webhooks',
             array($this, 'render_settings_page')
         );
     }
@@ -90,7 +90,7 @@ class WP_Post_Upsert_Webhooks_Settings {
             'webhook_endpoints_section',
             'Webhook Endpoints',
             array($this, 'webhook_endpoints_section_callback'),
-            'wp-post-upsert-webhook'
+            'wp-post-upsert-webhooks'
         );
     }
 

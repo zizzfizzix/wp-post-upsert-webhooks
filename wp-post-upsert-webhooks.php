@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name:     Post Upsert Webhooks
- * Plugin URI:      https://github.com/zizzfizzix/wp-post-upsert-webhook
+ * Plugin URI:      https://github.com/zizzfizzix/wp-post-upsert-webhooks
  * Description:     Sends webhook notifications when posts are created or updated
  * Author:          Kuba Serafinowski
  * Author URI:      https://kuba.wtf
- * Text Domain:     wp-post-upsert-webhook
+ * Text Domain:     wp-post-upsert-webhooks
  * Domain Path:     /languages
  * Version:         0.1.0
  *
