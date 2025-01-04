@@ -4,7 +4,7 @@ Tags: webhooks, api, integration, posts, automation, rest-api
 Requires at least: 5.0
 Tested up to: 6.7.1
 Requires PHP: 7.0
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -132,6 +132,10 @@ Each webhook can be configured to monitor specific:
 * Status transitions
 
 == Changelog ==
+
+= 0.1.1 =
+
+* Fix some minor lingering rename issues
 
 = 0.1.0 =
 * Initial release
