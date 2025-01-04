@@ -1,3 +1,4 @@
+/* Base webhook styles */
 .webhook-grid {
     display: flex;
     flex-direction: column;
@@ -12,6 +13,7 @@
     width: 100%;
 }
 
+/* Header styles */
 .webhook-header {
     padding: 15px;
     background: #f5f5f5;
@@ -30,15 +32,13 @@
     gap: 10px;
 }
 
-.webhook-content {
-    padding: 15px;
-    display: block;
+.webhook-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.webhook-content.collapsed {
-    display: none;
-}
-
+/* Status indicator */
 .webhook-status {
     width: 8px;
     height: 8px;
@@ -54,9 +54,20 @@
     background: #dc3232;
 }
 
+/* Content area */
+.webhook-content {
+    padding: 15px;
+    display: block;
+}
+
+.webhook-content.collapsed {
+    display: none;
+}
+
+/* Settings grid */
 .webhook-settings-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
 
@@ -64,6 +75,12 @@
     grid-column: 1 / -1;
 }
 
+.webhook-settings-full .webhook-setting input[type="text"],
+.webhook-settings-full .webhook-setting input[type="url"] {
+    width: 100%;
+}
+
+/* Collapse indicator */
 .collapse-indicator {
     margin-left: 10px;
     width: 20px;
@@ -76,31 +93,11 @@
     transition: transform 0.2s;
 }
 
-.webhook-endpoint .webhook-content.collapsed ~ .webhook-header .collapse-indicator,
-.webhook-endpoint .webhook-content.initially-collapsed ~ .webhook-header .collapse-indicator {
+.collapse-indicator.rotated {
     transform: rotate(-90deg);
 }
 
-.webhook-endpoint .webhook-content.collapsed + .webhook-header .collapse-indicator,
-.webhook-endpoint .webhook-content.initially-collapsed + .webhook-header .collapse-indicator {
-    display: none;
-}
-
-.webhook-header .collapse-indicator {
-    transition: transform 0.2s;
-}
-
-.webhook-header .collapse-indicator.rotated {
-    transform: rotate(-90deg);
-}
-
-/* New styles for previously inline CSS */
-.webhook-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
+/* General settings styles */
 .webhook-setting {
     margin-bottom: 15px;
 }
@@ -112,6 +109,7 @@
 
 .webhook-setting-group {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
@@ -119,15 +117,179 @@
     margin-top: 15px;
 }
 
+/* Retry settings */
 .retry-settings {
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+/* Mode selector */
+.retry-mode-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.retry-mode-option {
+    background: #fff;
+    padding: 8px 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.retry-mode-option input[type="radio"] {
+    margin: 0;
+}
+
+/* Settings rows */
+.retry-settings-row {
+    display: flex;
+	justify-content: space-between;
     margin-bottom: 15px;
 }
 
-.retry-setting {
-    margin-top: 10px;
+.retry-settings-row .retry-setting {
+    margin: 0;
 }
 
-.retry-delays {
+.retry-settings-row .retry-setting label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.retry-settings-row input[type="number"] {
+    width: 70px;
+}
+
+/* Time inputs */
+.time-input-group {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.time-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.time-input input {
+    width: 60px;
+    text-align: center;
+}
+
+.time-input label {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+    font-weight: normal;
+}
+
+/* Range input */
+.range-input-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+}
+
+.retry-jitter-range {
+    flex: 1;
+    min-width: 150px;
+}
+
+.retry-jitter-number {
+    width: 60px;
+    text-align: center;
+}
+
+/* Formula hint */
+.formula-hint {
+    margin: 5px 0 15px;
+    color: #666;
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* Preview section */
+.retry-preview {
+    margin-top: 25px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.retry-preview h4 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+}
+
+.retry-preview-content {
+    color: #666;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Visibility control */
+.retry-mode-content,
+.retry-settings-content {
+    display: none;
+}
+
+.retry-settings[data-mode="constant"] .retry-settings-content,
+.retry-settings[data-mode="exponential"] .retry-settings-content {
+    display: block;
+}
+
+.retry-settings[data-mode="constant"] .retry-constant-settings,
+.retry-settings[data-mode="exponential"] .retry-exponential-settings {
+    display: block;
+}
+
+.retry-settings[data-mode="disabled"] .retry-preview {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .webhook-settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .retry-settings-row .retry-setting {
+        width: 100%;
+    }
+
+    .time-input-group {
+        gap: 10px;
+    }
+
+    .time-input {
+        flex: 1;
+        min-width: 70px;
+    }
+
+    .range-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .retry-jitter-number {
+        width: 100%;
+    }
+
+    .retry-mode-option {
+        justify-content: center;
+    }
 }

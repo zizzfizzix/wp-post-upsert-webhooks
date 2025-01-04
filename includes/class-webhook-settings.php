@@ -19,9 +19,18 @@ class WP_Post_Upsert_Webhooks_Settings {
         'post_statuses' => array('publish'),
         'idempotency_fields' => array('title', 'content', 'status', 'slug'),
         'retry_settings' => array(
+            'mode' => 'constant',
             'enabled' => true,
             'max_retries' => 3,
-            'delays' => array(30, 300, 3600)
+            'constant_delay' => array(
+                'value' => 5,
+                'unit' => 'min'
+            ),
+            'exponential' => array(
+                'multiplier' => 2,
+                'base' => 5,
+                'jitter' => 5
+            )
         )
     );
 
@@ -123,11 +132,22 @@ class WP_Post_Upsert_Webhooks_Settings {
                 'post_statuses' => isset($webhook['post_statuses']) ? array_map('sanitize_text_field', $webhook['post_statuses']) : self::$default_config['post_statuses'],
                 'idempotency_fields' => isset($webhook['idempotency_fields']) ? array_map('sanitize_text_field', $webhook['idempotency_fields']) : self::$default_config['idempotency_fields'],
                 'retry_settings' => array(
-                    'enabled' => !empty($webhook['retry_settings']['enabled']),
+                    'mode' => in_array($webhook['retry_settings']['mode'], array('disabled', 'constant', 'exponential'))
+                        ? $webhook['retry_settings']['mode']
+                        : 'disabled',
+                    'enabled' => isset($webhook['retry_settings']['mode']) && $webhook['retry_settings']['mode'] !== 'disabled',
                     'max_retries' => min(10, max(1, intval($webhook['retry_settings']['max_retries']))),
-                    'delays' => isset($webhook['retry_settings']['delays'])
-                        ? array_map('intval', array_slice($webhook['retry_settings']['delays'], 0, 3))
-                        : self::$default_config['retry_settings']['delays']
+                    'constant_delay' => array(
+                        'value' => max(0, intval($webhook['retry_settings']['constant_delay']['value'] ?? 5)),
+                        'unit' => in_array($webhook['retry_settings']['constant_delay']['unit'], array('ms', 'sec', 'min', 'hour', 'day'))
+                            ? $webhook['retry_settings']['constant_delay']['unit']
+                            : 'sec'
+                    ),
+                    'exponential' => array(
+                        'multiplier' => max(1, floatval($webhook['retry_settings']['exponential']['multiplier'] ?? 2)),
+                        'base' => max(1, intval($webhook['retry_settings']['exponential']['base'] ?? 5)),
+                        'jitter' => min(50, max(0, intval($webhook['retry_settings']['exponential']['jitter'] ?? 5)))
+                    )
                 )
             );
         }

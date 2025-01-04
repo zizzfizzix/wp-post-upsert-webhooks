@@ -207,12 +207,39 @@ class WP_Post_Upsert_Webhooks_Handler {
     private function schedule_retry($data, $webhook, $retry_count) {
         $retry_meta_key = '_webhook_retry_' . md5($webhook['url']) . '_' . $data['idempotency_key'];
         $next_retry = $retry_count + 1;
+        $retry_settings = $webhook['retry_settings'];
 
-        if ($next_retry <= count($webhook['retry_settings']['delays'])) {
+        if ($next_retry <= $retry_settings['max_retries']) {
             update_post_meta($data['post']['id'], $retry_meta_key, $next_retry);
 
+            $delay_seconds = 0;
+            if ($retry_settings['mode'] === 'constant') {
+                $value = $retry_settings['constant_delay']['value'];
+                switch ($retry_settings['constant_delay']['unit']) {
+                    case 'ms':
+                        $delay_seconds = $value / 1000;
+                        break;
+                    case 'sec':
+                        $delay_seconds = $value;
+                        break;
+                    case 'min':
+                        $delay_seconds = $value * 60;
+                        break;
+                    case 'hour':
+                        $delay_seconds = $value * 3600;
+                        break;
+                    case 'day':
+                        $delay_seconds = $value * 86400;
+                        break;
+                }
+            } elseif ($retry_settings['mode'] === 'exponential') {
+                $delay = $retry_settings['exponential']['multiplier'] * pow($retry_settings['exponential']['base'], $retry_count);
+                $jitter = ($delay * $retry_settings['exponential']['jitter']) / 100;
+                $delay_seconds = $delay + (rand(-$jitter * 100, $jitter * 100) / 100);
+            }
+
             wp_schedule_single_event(
-                time() + $webhook['retry_settings']['delays'][$retry_count],
+                time() + max(1, round($delay_seconds)),
                 'wp_post_upsert_webhooks_retry',
                 array($data, $webhook)
             );
