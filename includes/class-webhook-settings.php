@@ -187,7 +187,22 @@ class WP_Post_Upsert_Webhooks_Settings {
     }
 
     public function sanitize_settings($input) {
+        $old_webhooks = isset($this->options['webhooks']) ? $this->options['webhooks'] : array();
+        $old_webhook_ids = array();
+        $new_webhook_ids = array();
+
+        // Get all old webhook IDs regardless of enabled status
+        foreach ($old_webhooks as $webhook) {
+            if (!empty($webhook['id'])) {
+                $old_webhook_ids[] = $webhook['id'];
+            }
+        }
+
         if (!is_array($input) || !isset($input['webhooks'])) {
+            // All webhooks were deleted, clean up meta for all old webhooks
+            if (!empty($old_webhook_ids)) {
+                $this->cleanup_webhook_meta($old_webhook_ids);
+            }
             return array('webhooks' => array(array_merge(
                 self::$default_config,
                 array('id' => wp_generate_uuid4())
@@ -198,8 +213,11 @@ class WP_Post_Upsert_Webhooks_Settings {
         $sanitized['webhooks'] = array();
 
         foreach ($input['webhooks'] as $webhook) {
+            $webhook_id = empty($webhook['id']) ? wp_generate_uuid4() : $webhook['id'];
+            $new_webhook_ids[] = $webhook_id;  // Track all webhook IDs
+
             $sanitized['webhooks'][] = array(
-                'id' => empty($webhook['id']) ? wp_generate_uuid4() : $webhook['id'],
+                'id' => $webhook_id,
                 'enabled' => !empty($webhook['enabled']),
                 'name' => sanitize_text_field($webhook['name']),
                 'url' => esc_url_raw($webhook['url']),
@@ -230,6 +248,66 @@ class WP_Post_Upsert_Webhooks_Settings {
             );
         }
 
+        // Clean up meta for webhooks that were deleted
+        $webhooks_to_cleanup = array_diff($old_webhook_ids, $new_webhook_ids);
+        if (!empty($webhooks_to_cleanup)) {
+            $this->cleanup_webhook_meta($webhooks_to_cleanup);
+        }
+
         return $sanitized;
+    }
+
+    /**
+     * Cleans up webhook-related post meta for given webhook IDs
+     * @param array $webhook_ids Array of webhook IDs to clean up
+     */
+    private function cleanup_webhook_meta($webhook_ids) {
+        global $wpdb;
+
+        // Get all posts that might have webhook meta
+        $meta_keys = array();
+        foreach ($webhook_ids as $webhook_id) {
+            $meta_keys[] = '_last_webhook_key_' . $webhook_id;
+            $meta_keys[] = $wpdb->esc_like('_webhook_retry_' . $webhook_id . '_') . '%';
+        }
+
+        // Build the meta key pattern for the SQL query
+        $meta_key_patterns = array();
+        foreach ($meta_keys as $key) {
+            $meta_key_patterns[] = $wpdb->prepare('meta_key LIKE %s', $key);
+        }
+        $meta_key_pattern = implode(' OR ', $meta_key_patterns);
+
+        // Get all post IDs with webhook meta, using index hint for performance
+        $post_ids = $wpdb->get_col("
+            SELECT DISTINCT post_id
+            FROM {$wpdb->postmeta} USE INDEX (meta_key)
+            WHERE {$meta_key_pattern}
+        ");
+
+        if (empty($post_ids)) {
+            return;
+        }
+
+        // Delete the meta for each post
+        foreach ($post_ids as $post_id) {
+            foreach ($webhook_ids as $webhook_id) {
+                delete_post_meta($post_id, '_last_webhook_key_' . $webhook_id);
+
+                // Get and delete all retry meta keys for this webhook
+                $retry_meta_keys = $wpdb->get_col($wpdb->prepare("
+                    SELECT meta_key
+                    FROM {$wpdb->postmeta} USE INDEX (meta_key)
+                    WHERE post_id = %d
+                    AND meta_key LIKE %s",
+                    $post_id,
+                    '_webhook_retry_' . $webhook_id . '_%'
+                ));
+
+                foreach ($retry_meta_keys as $retry_meta_key) {
+                    delete_post_meta($post_id, $retry_meta_key);
+                }
+            }
+        }
     }
 }
