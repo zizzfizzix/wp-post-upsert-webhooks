@@ -178,12 +178,6 @@ class WP_Post_Upsert_Webhooks_Handler {
 
         $retry_settings = $webhook['retry_settings'];
 
-        if ($retry_count >= $retry_settings['max_retries']) {
-            delete_post_meta($data['post']['id'], $retry_meta_key);
-            $this->log_webhook_execution($data, $webhook, null, 'max_retries_reached', $retry_count);
-            return;
-        }
-
         if ($webhook['http_method'] === 'POST') {
             $args['body'] = wp_json_encode($data);
             $response = wp_remote_post($webhook['url'], $args);
@@ -193,8 +187,12 @@ class WP_Post_Upsert_Webhooks_Handler {
         }
 
         if (is_wp_error($response)) {
-            if (!empty($retry_settings['enabled'])) {
+            if (!empty($retry_settings['enabled']) && $retry_count < $retry_settings['max_retries']) {
                 $this->schedule_retry($data, $webhook, $retry_count);
+            } else if (!empty($retry_settings['enabled'])) {
+                delete_post_meta($data['post']['id'], $retry_meta_key);
+                $this->log_webhook_execution($data, $webhook, $response, 'max_retries_reached', $retry_count);
+                return;
             }
             $this->log_webhook_execution($data, $webhook, $response, 'error', $retry_count);
             return;
@@ -204,8 +202,12 @@ class WP_Post_Upsert_Webhooks_Handler {
         $response_body = wp_remote_retrieve_body($response);
 
         if ($response_code < 200 || $response_code >= 300) {
-            if (!empty($retry_settings['enabled'])) {
+            if (!empty($retry_settings['enabled']) && $retry_count < $retry_settings['max_retries']) {
                 $this->schedule_retry($data, $webhook, $retry_count);
+            } else if (!empty($retry_settings['enabled'])) {
+                delete_post_meta($data['post']['id'], $retry_meta_key);
+                $this->log_webhook_execution($data, $webhook, $response, 'max_retries_reached', $retry_count);
+                return;
             }
             $this->log_webhook_execution($data, $webhook, $response, 'failed', $retry_count);
             return;
