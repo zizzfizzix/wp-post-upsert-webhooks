@@ -300,7 +300,7 @@ class WP_Post_Upsert_Webhooks_Handler {
                         break;
                 }
             } elseif ($retry_settings['mode'] === 'exponential') {
-                $delay = $retry_settings['exponential']['multiplier'] * pow($retry_settings['exponential']['base'], $retry_count);
+                $delay = $retry_settings['exponential']['multiplier'] * pow($retry_settings['exponential']['base'], $next_retry - 1);
                 $jitter = ($delay * $retry_settings['exponential']['jitter']) / 100;
                 $delay_seconds = $delay + (rand(-$jitter * 100, $jitter * 100) / 100);
             }
