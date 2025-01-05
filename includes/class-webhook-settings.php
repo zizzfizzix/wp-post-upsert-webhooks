@@ -9,6 +9,7 @@ class WP_Post_Upsert_Webhooks_Settings {
     private $options;
 
     public static $default_config = array(
+        'id' => '',
         'enabled' => false,
         'name' => '',
         'url' => '',
@@ -39,6 +40,29 @@ class WP_Post_Upsert_Webhooks_Settings {
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
         $this->options = get_option($this->option_name);
+        $this->ensure_webhook_ids();
+    }
+
+    /**
+     * Ensures all webhooks have unique IDs
+     * This is called on construction and before saving
+     */
+    private function ensure_webhook_ids() {
+        if (!isset($this->options['webhooks']) || !is_array($this->options['webhooks'])) {
+            return;
+        }
+
+        $modified = false;
+        foreach ($this->options['webhooks'] as &$webhook) {
+            if (empty($webhook['id'])) {
+                $webhook['id'] = wp_generate_uuid4();
+                $modified = true;
+            }
+        }
+
+        if ($modified) {
+            update_option($this->option_name, $this->options);
+        }
     }
 
     public function add_admin_menu() {
@@ -164,7 +188,10 @@ class WP_Post_Upsert_Webhooks_Settings {
 
     public function sanitize_settings($input) {
         if (!is_array($input) || !isset($input['webhooks'])) {
-            return array('webhooks' => array(self::$default_config));
+            return array('webhooks' => array(array_merge(
+                self::$default_config,
+                array('id' => wp_generate_uuid4())
+            )));
         }
 
         $sanitized = array();
@@ -172,6 +199,7 @@ class WP_Post_Upsert_Webhooks_Settings {
 
         foreach ($input['webhooks'] as $webhook) {
             $sanitized['webhooks'][] = array(
+                'id' => empty($webhook['id']) ? wp_generate_uuid4() : $webhook['id'],
                 'enabled' => !empty($webhook['enabled']),
                 'name' => sanitize_text_field($webhook['name']),
                 'url' => esc_url_raw($webhook['url']),

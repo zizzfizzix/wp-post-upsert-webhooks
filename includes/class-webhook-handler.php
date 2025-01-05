@@ -61,7 +61,7 @@ class WP_Post_Upsert_Webhooks_Handler {
 
     private function should_suppress_webhook($post, $event_type, $webhook) {
         $current_key = $this->get_stable_idempotency_key($post, $event_type, $webhook);
-        $last_key = get_post_meta($post->ID, '_last_successful_webhook_key_' . md5($webhook['url']), true);
+        $last_key = get_post_meta($post->ID, '_last_webhook_key_' . $webhook['id'], true);
         return $current_key === $last_key;
     }
 
@@ -103,10 +103,11 @@ class WP_Post_Upsert_Webhooks_Handler {
 
     private function get_stable_idempotency_key($post, $event_type, $webhook) {
         $fields = isset($webhook['idempotency_fields']) ? $webhook['idempotency_fields'] : array();
+
         $key_parts = array(
             $post->ID,
             $this->get_content_hash($post, $webhook),
-            md5($webhook['url'])
+            $webhook['id']
         );
 
         if (in_array('event_type', $fields)) {
@@ -151,6 +152,15 @@ class WP_Post_Upsert_Webhooks_Handler {
     }
 
     private function send_webhook($data, $webhook) {
+        // Store the idempotency key before attempting the webhook
+        // This ensures we track the attempt regardless of success/failure
+        // But only if this is not a retry attempt (to prevent duplicate suppression from blocking retries)
+        $retry_meta_key = '_webhook_retry_' . $webhook['id'] . '_' . $data['idempotency_key'];
+        $retry_count = (int)get_post_meta($data['post']['id'], $retry_meta_key, true);
+        if ($retry_count === 0) {
+            update_post_meta($data['post']['id'], '_last_webhook_key_' . $webhook['id'], $data['idempotency_key']);
+        }
+
 		$headers = array(
             'Content-Type' => 'application/json',
             'X-WordPress-Webhook' => 'post-upsert',
@@ -167,8 +177,6 @@ class WP_Post_Upsert_Webhooks_Handler {
         );
 
         $retry_settings = $webhook['retry_settings'];
-        $retry_meta_key = '_webhook_retry_' . md5($webhook['url']) . '_' . $data['idempotency_key'];
-        $retry_count = (int)get_post_meta($data['post']['id'], $retry_meta_key, true);
 
         if ($retry_count >= $retry_settings['max_retries']) {
             delete_post_meta($data['post']['id'], $retry_meta_key);
@@ -204,7 +212,6 @@ class WP_Post_Upsert_Webhooks_Handler {
         }
 
         delete_post_meta($data['post']['id'], $retry_meta_key);
-        update_post_meta($data['post']['id'], '_last_successful_webhook_key_' . md5($webhook['url']), $data['idempotency_key']);
         $this->log_webhook_execution($data, $webhook, $response, 'success', $retry_count);
     }
 
@@ -264,7 +271,7 @@ class WP_Post_Upsert_Webhooks_Handler {
     }
 
     private function schedule_retry($data, $webhook, $retry_count) {
-        $retry_meta_key = '_webhook_retry_' . md5($webhook['url']) . '_' . $data['idempotency_key'];
+        $retry_meta_key = '_webhook_retry_' . $webhook['id'] . '_' . $data['idempotency_key'];
         $next_retry = $retry_count + 1;
         $retry_settings = $webhook['retry_settings'];
 
