@@ -7,6 +7,9 @@ if (!defined('ABSPATH')) {
     <h3>
         <span class="webhook-status <?php echo !empty($webhook['enabled']) ? 'enabled' : 'disabled'; ?>"></span>
         <span class="webhook-title"><?php echo !empty($webhook['name']) ? esc_html($webhook['name']) : 'Unnamed Webhook'; ?></span>
+        <?php if (!empty($webhook['id'])): ?>
+            <span class="webhook-id" title="Webhook ID">(<?php echo esc_html($webhook['id']); ?>)</span>
+        <?php endif; ?>
     </h3>
     <div class="webhook-header-actions">
         <button type="button" class="button button-link-delete" onclick="event.stopPropagation(); removeWebhookEndpoint(this)">Remove</button>

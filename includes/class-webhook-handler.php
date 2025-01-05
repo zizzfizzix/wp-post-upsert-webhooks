@@ -236,6 +236,7 @@ class WP_Post_Upsert_Webhooks_Handler {
         });
 
         $log_data = array(
+            'webhook_id' => $webhook['id'],
             'webhook_name' => $webhook['name'],
             'webhook_url' => $webhook['url'],
             'post_id' => $data['post']['id'],

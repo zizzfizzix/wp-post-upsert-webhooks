@@ -30,25 +30,25 @@ function wp_post_upsert_webhooks_install() {
 
     $sql = "CREATE TABLE $table_name (
         id bigint(20) NOT NULL AUTO_INCREMENT,
+        webhook_id char(36) NOT NULL,
         webhook_name varchar(255) NOT NULL,
         webhook_url varchar(2083) NOT NULL,
         post_id bigint(20) NOT NULL,
         event_type varchar(50) NOT NULL,
-        status varchar(50) NOT NULL,
-        response_code int(11),
-        response_body text,
-        response_headers text,
-        request_headers text,
-        retry_count int(11) DEFAULT 0,
+        status varchar(20) NOT NULL,
+        retry_count int(11) NOT NULL DEFAULT 0,
         payload longtext NOT NULL,
+        response_code int(11),
+        response_body longtext,
+        request_headers text,
+        response_headers text,
         timestamp datetime NOT NULL,
-        idempotency_key varchar(255) DEFAULT NULL,
+        idempotency_key varchar(32) NOT NULL,
         PRIMARY KEY  (id),
-        KEY webhook_name (webhook_name),
+        KEY webhook_id (webhook_id),
         KEY post_id (post_id),
         KEY status (status),
-        KEY timestamp (timestamp),
-        KEY idx_idempotency_key (idempotency_key(191))
+        KEY timestamp (timestamp)
     ) $charset_collate;";
 
     dbDelta($sql);

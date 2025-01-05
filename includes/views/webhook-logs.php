@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Get filters from URL
-$webhook_filter = isset($_GET['webhook']) ? sanitize_text_field($_GET['webhook']) : '';
+$webhook_id_filter = isset($_GET['webhook']) ? sanitize_text_field($_GET['webhook']) : '';
 $status_filter = isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '';
 $page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
 $per_page = 20;
@@ -17,9 +17,9 @@ $offset = ($page - 1) * $per_page;
 $where = array('1=1');
 $where_values = array();
 
-if (!empty($webhook_filter)) {
-    $where[] = 'webhook_name = %s';
-    $where_values[] = $webhook_filter;
+if (!empty($webhook_id_filter)) {
+    $where[] = 'webhook_id = %s';
+    $where_values[] = $webhook_id_filter;
 }
 
 if (!empty($status_filter)) {
@@ -38,8 +38,12 @@ $logs_query = $wpdb->prepare(
 );
 $logs = $wpdb->get_results($logs_query);
 
-// Get unique webhook names and statuses for filters
-$webhook_names = $wpdb->get_col("SELECT DISTINCT webhook_name FROM $table_name ORDER BY webhook_name");
+// Get unique webhook name and ID combinations for filter
+$webhook_combinations = $wpdb->get_results(
+    "SELECT DISTINCT webhook_name, webhook_id
+    FROM $table_name
+    ORDER BY webhook_name"
+);
 $statuses = $wpdb->get_col("SELECT DISTINCT status FROM $table_name ORDER BY status");
 ?>
 
@@ -51,9 +55,9 @@ $statuses = $wpdb->get_col("SELECT DISTINCT status FROM $table_name ORDER BY sta
 
         <select name="webhook">
             <option value="">All Webhooks</option>
-            <?php foreach ($webhook_names as $name): ?>
-                <option value="<?php echo esc_attr($name); ?>" <?php selected($webhook_filter, $name); ?>>
-                    <?php echo esc_html($name); ?>
+            <?php foreach ($webhook_combinations as $webhook): ?>
+                <option value="<?php echo esc_attr($webhook->webhook_id); ?>" <?php selected($webhook_id_filter, $webhook->webhook_id); ?>>
+                    <?php echo esc_html($webhook->webhook_name); ?> (<?php echo esc_html($webhook->webhook_id); ?>)
                 </option>
             <?php endforeach; ?>
         </select>
@@ -93,7 +97,11 @@ $statuses = $wpdb->get_col("SELECT DISTINCT status FROM $table_name ORDER BY sta
                 <?php foreach ($logs as $log): ?>
                     <tr>
                         <td><?php echo esc_html(get_date_from_gmt($log->timestamp)); ?></td>
-                        <td><?php echo esc_html($log->webhook_name); ?></td>
+                        <td>
+                            <?php echo esc_html($log->webhook_name); ?>
+                            <br>
+                            <code><?php echo esc_html($log->webhook_id); ?></code>
+                        </td>
                         <td><?php echo esc_html($log->event_type); ?></td>
                         <td><?php echo esc_html($log->idempotency_key); ?></td>
                         <td>

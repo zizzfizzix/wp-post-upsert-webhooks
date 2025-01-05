@@ -293,3 +293,15 @@
         justify-content: center;
     }
 }
+
+.webhook-id {
+    font-size: 0.8em;
+    color: #666;
+    font-weight: normal;
+    margin-left: 8px;
+    font-family: monospace;
+}
+
+.webhook-header:hover .webhook-id {
+    color: #333;
+}
