@@ -17,6 +17,7 @@ WP Post Upsert Webhooks enables WordPress sites to send reliable webhook notific
 **Key Features:**
 
 * Configure multiple webhook endpoints with different settings
+* Unique IDs for each webhook configuration
 * Support for POST and GET HTTP methods
 * Flexible post type and status filtering
 * Advanced retry mechanisms with constant or exponential backoff
@@ -26,6 +27,8 @@ WP Post Upsert Webhooks enables WordPress sites to send reliable webhook notific
 * Detailed post data including meta fields
 * Event-based triggers (create, update, status change)
 * Duplicate suppression with configurable fields
+* Comprehensive logging with webhook tracing
+* Automatic cleanup of webhook metadata
 
 **Use Cases:**
 
@@ -49,6 +52,7 @@ The plugin sends comprehensive post data including:
 * Creation and modification dates (GMT)
 
 Each webhook request includes:
+* Unique webhook configuration ID
 * Configurable idempotency keys based on selected fields
 * Event type (post.created, post.updated, post.status_changed)
 * Webhook-specific headers
@@ -72,15 +76,22 @@ The plugin supports two retry modes:
 
 1. Upload the plugin files to the `/wp-content/plugins/wp-post-upsert-webhooks` directory, or install the plugin through the WordPress plugins screen
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Settings > WP Post Upsert Webhooks to configure your webhook endpoints
+3. Go to Settings > Post Webhooks to configure your webhook endpoints
 4. For each webhook, configure:
    * Endpoint URL
    * HTTP method (POST/GET)
    * Post types to monitor
    * Post statuses to track
    * Bearer token (if required)
-   * Retry settings
+   * Retry settings (constant or exponential backoff)
    * Idempotency fields
+   * Duplicate suppression settings
+5. Each webhook configuration is automatically assigned a unique ID for tracking
+6. Use the Logs section to monitor webhook executions and troubleshoot any issues
+7. Configure retry settings based on your needs:
+   * Choose between constant delay or exponential backoff
+   * Set appropriate delay values and retry limits
+   * Add jitter for exponential backoff to prevent concurrent retries
 
 == Frequently Asked Questions ==
 
@@ -97,13 +108,15 @@ The plugin offers two retry modes:
 
 You can configure:
 * Maximum retry attempts (up to 10)
-* Delay values and units
-* Jitter percentage for exponential backoff
-* Base and multiplier for exponential calculations
+* Delay values and units (milliseconds to days)
+* Jitter percentage for exponential backoff (0-50%)
+* Base delay and multiplier for exponential calculations
+
+Failed webhook attempts are automatically retried based on your configuration, with detailed logging of each attempt.
 
 = How does idempotency work? =
 
-The plugin generates unique idempotency keys based on your selected fields:
+The plugin generates unique idempotency keys based on your selected fields and the webhook configuration ID:
 * Title
 * Content
 * Status
@@ -113,7 +126,19 @@ The plugin generates unique idempotency keys based on your selected fields:
 * Author
 * Event type
 
-You can choose which fields contribute to the idempotency key, allowing fine-grained control over duplicate detection.
+Each webhook configuration has its own unique ID, ensuring that identical content changes trigger separate webhooks for different configurations. You can choose which fields contribute to the idempotency key, allowing fine-grained control over duplicate detection.
+
+= How can I track webhook executions? =
+
+The plugin provides a comprehensive logging system that includes:
+* Webhook configuration ID
+* Execution status (success/failure)
+* Response data
+* Retry attempts and timing
+* Error messages
+* Request payload
+
+You can filter logs by webhook configuration and status to track specific webhook executions.
 
 = Can I send webhooks for specific post types only? =
 
@@ -133,6 +158,16 @@ Each webhook can be configured to monitor specific:
 
 == Changelog ==
 
+= 0.2.0 =
+* Added unique IDs for webhook configurations to improve tracking and management
+* Fixed duplicate suppression logic to properly handle different webhook configurations
+* Added webhook IDs to logs for better traceability
+* Improved retry mechanism with proper exponential backoff calculation
+* Added cleanup of webhook metadata when configurations are deleted
+* Fixed webhook filtering in logs
+* Added display of webhook IDs in settings UI
+* Improved error handling and logging
+
 = 0.1.1 =
 
 * Fix some minor lingering rename issues
@@ -147,6 +182,9 @@ Each webhook can be configured to monitor specific:
 * Comprehensive post data payload
 
 == Upgrade Notice ==
+
+= 0.2.0 =
+This version improves webhook reliability with unique IDs, better duplicate handling, and improved retry logic. No breaking changes.
 
 = 0.1.0 =
 Initial release of WP Post Upsert Webhooks
