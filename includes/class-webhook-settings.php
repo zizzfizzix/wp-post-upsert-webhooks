@@ -189,9 +189,8 @@ class WP_Post_Upsert_Webhooks_Settings {
     public function sanitize_settings($input) {
         $old_webhooks = isset($this->options['webhooks']) ? $this->options['webhooks'] : array();
         $old_webhook_ids = array();
-        $new_webhook_ids = array();
 
-        // Get all old webhook IDs regardless of enabled status
+        // Get all old webhook IDs
         foreach ($old_webhooks as $webhook) {
             if (!empty($webhook['id'])) {
                 $old_webhook_ids[] = $webhook['id'];
@@ -211,10 +210,12 @@ class WP_Post_Upsert_Webhooks_Settings {
 
         $sanitized = array();
         $sanitized['webhooks'] = array();
+        $new_webhook_ids = array();
 
-        foreach ($input['webhooks'] as $webhook) {
-            $webhook_id = empty($webhook['id']) ? wp_generate_uuid4() : $webhook['id'];
-            $new_webhook_ids[] = $webhook_id;  // Track all webhook IDs
+        foreach ($input['webhooks'] as $index => $webhook) {
+            // Preserve the ID if this webhook exists at the same position
+            $webhook_id = isset($old_webhooks[$index]['id']) ? $old_webhooks[$index]['id'] : wp_generate_uuid4();
+            $new_webhook_ids[] = $webhook_id;
 
             $sanitized['webhooks'][] = array(
                 'id' => $webhook_id,
