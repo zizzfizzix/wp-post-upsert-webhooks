@@ -14,7 +14,7 @@ class WP_Post_Upsert_Webhooks_Handler {
     }
 
     public function handle_post_event($new_status, $old_status, $post) {
-        if (wp_is_post_revision($post->ID) || (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)) {
+		if (wp_is_post_revision($post->ID) || (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)) {
             return;
         }
 
@@ -126,6 +126,7 @@ class WP_Post_Upsert_Webhooks_Handler {
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'idempotency_key' => $this->get_stable_idempotency_key($post, $event_type, $webhook),
             'webhook_name' => $webhook['name'],
+            'http_method' => $webhook['http_method'],
             'post' => array(
                 'id' => $post->ID,
                 'title' => $post->post_title,
@@ -150,7 +151,7 @@ class WP_Post_Upsert_Webhooks_Handler {
     }
 
     private function send_webhook($data, $webhook) {
-        $headers = array(
+		$headers = array(
             'Content-Type' => 'application/json',
             'X-WordPress-Webhook' => 'post-upsert',
             'Idempotency-Key' => $data['idempotency_key']
@@ -170,8 +171,8 @@ class WP_Post_Upsert_Webhooks_Handler {
         $retry_count = (int)get_post_meta($data['post']['id'], $retry_meta_key, true);
 
         if ($retry_count >= $retry_settings['max_retries']) {
-            error_log(sprintf('Maximum retry attempts reached for webhook %s: %s', $webhook['name'], $data['idempotency_key']));
             delete_post_meta($data['post']['id'], $retry_meta_key);
+            $this->log_webhook_execution($data, $webhook, null, 'max_retries_reached', $retry_count);
             return;
         }
 
@@ -184,24 +185,82 @@ class WP_Post_Upsert_Webhooks_Handler {
         }
 
         if (is_wp_error($response)) {
-            error_log(sprintf('Webhook %s sending failed: %s', $webhook['name'], $response->get_error_message()));
             if (!empty($retry_settings['enabled'])) {
                 $this->schedule_retry($data, $webhook, $retry_count);
             }
+            $this->log_webhook_execution($data, $webhook, $response, 'error', $retry_count);
             return;
         }
 
         $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+
         if ($response_code < 200 || $response_code >= 300) {
-            error_log(sprintf('Webhook %s failed with HTTP %d: %s', $webhook['name'], $response_code, wp_remote_retrieve_body($response)));
             if (!empty($retry_settings['enabled'])) {
                 $this->schedule_retry($data, $webhook, $retry_count);
             }
+            $this->log_webhook_execution($data, $webhook, $response, 'failed', $retry_count);
             return;
         }
 
         delete_post_meta($data['post']['id'], $retry_meta_key);
         update_post_meta($data['post']['id'], '_last_successful_webhook_key_' . md5($webhook['url']), $data['idempotency_key']);
+        $this->log_webhook_execution($data, $webhook, $response, 'success', $retry_count);
+    }
+
+    private function log_webhook_execution($data, $webhook, $response, $status, $retry_count) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'wp_post_upsert_webhooks_logs';
+
+        // Get the actual headers used in the request
+        $headers = array(
+            'Content-Type' => 'application/json',
+            'X-WordPress-Webhook' => 'post-upsert',
+            'Idempotency-Key' => $data['idempotency_key']
+        );
+
+        if (!empty($webhook['bearer_token'])) {
+            $headers['Authorization'] = 'Bearer ' . $webhook['bearer_token'];
+        }
+
+        // Filter out empty headers
+        $headers = array_filter($headers, function($value) {
+            return !empty($value);
+        });
+
+        $log_data = array(
+            'webhook_name' => $webhook['name'],
+            'webhook_url' => $webhook['url'],
+            'post_id' => $data['post']['id'],
+            'event_type' => $data['event_type'],
+            'status' => $status,
+            'retry_count' => $retry_count,
+            'payload' => wp_json_encode($data),
+            'timestamp' => current_time('mysql'),
+            'request_headers' => wp_json_encode($headers),
+            'idempotency_key' => $data['idempotency_key']
+        );
+
+        if ($response !== null) {
+            if (is_wp_error($response)) {
+                $log_data['response_code'] = 0;
+                $log_data['response_body'] = $response->get_error_message();
+                $log_data['response_headers'] = '';
+            } else {
+                $log_data['response_code'] = wp_remote_retrieve_response_code($response);
+                $log_data['response_body'] = wp_remote_retrieve_body($response);
+
+                // Get response headers and filter out empty ones
+                $response_headers = wp_remote_retrieve_headers($response);
+                $response_headers = $response_headers ? array_filter((array)$response_headers, function($value) {
+                    return !empty($value);
+                }) : array();
+
+                $log_data['response_headers'] = !empty($response_headers) ? wp_json_encode($response_headers) : '';
+            }
+        }
+
+        $result = $wpdb->insert($table_name, $log_data);
     }
 
     private function schedule_retry($data, $webhook, $retry_count) {

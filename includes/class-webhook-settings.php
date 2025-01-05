@@ -35,41 +35,91 @@ class WP_Post_Upsert_Webhooks_Settings {
     );
 
     public function __construct() {
-        add_action('admin_menu', array($this, 'add_settings_page'));
+        add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
         $this->options = get_option($this->option_name);
     }
 
-    public function enqueue_admin_assets($hook) {
-        if ('settings_page_wp-post-upsert-webhooks' !== $hook) {
-            return;
-        }
-
-        wp_enqueue_style(
-            'wp-post-upsert-webhooks-admin',
-            plugins_url('assets/css/admin.css', WP_POST_UPSERT_WEBHOOKS_FILE),
-            array(),
-            WP_POST_UPSERT_WEBHOOKS_VERSION
-        );
-
-        wp_enqueue_script(
-            'wp-post-upsert-webhooks-admin',
-            plugins_url('assets/js/admin.js', WP_POST_UPSERT_WEBHOOKS_FILE),
-            array('jquery'),
-            WP_POST_UPSERT_WEBHOOKS_VERSION,
-            true
-        );
-    }
-
-    public function add_settings_page() {
-        add_options_page(
-            'Post Upsert Webhooks Settings',
+    public function add_admin_menu() {
+        // Add main menu
+        add_menu_page(
             'Post Upsert Webhooks',
+            'Post Webhooks',
+            'manage_options',
+            'wp-post-upsert-webhooks',
+            array($this, 'render_settings_page'),
+            'dashicons-rest-api'
+        );
+
+        // Add Settings submenu
+        add_submenu_page(
+            'wp-post-upsert-webhooks',
+            'Webhook Settings',
+            'Settings',
             'manage_options',
             'wp-post-upsert-webhooks',
             array($this, 'render_settings_page')
         );
+
+        // Add Logs submenu
+        add_submenu_page(
+            'wp-post-upsert-webhooks',
+            'Webhook Logs',
+            'Logs',
+            'manage_options',
+            'wp-post-upsert-webhooks-logs',
+            array($this, 'render_logs_page')
+        );
+    }
+
+    public function render_logs_page() {
+        require plugin_dir_path(WP_POST_UPSERT_WEBHOOKS_FILE) . 'includes/views/webhook-logs.php';
+    }
+
+    public function enqueue_admin_assets($hook) {
+        $allowed_hooks = array(
+            'toplevel_page_wp-post-upsert-webhooks',
+            'post-webhooks_page_wp-post-upsert-webhooks-logs'
+        );
+
+        if (!in_array($hook, $allowed_hooks)) {
+            return;
+        }
+
+        if ($hook === 'toplevel_page_wp-post-upsert-webhooks') {
+            // Settings page assets
+            wp_enqueue_style(
+                'wp-post-upsert-webhooks-settings',
+                plugins_url('assets/css/settings.css', WP_POST_UPSERT_WEBHOOKS_FILE),
+                array(),
+                WP_POST_UPSERT_WEBHOOKS_VERSION
+            );
+
+            wp_enqueue_script(
+                'wp-post-upsert-webhooks-settings',
+                plugins_url('assets/js/settings.js', WP_POST_UPSERT_WEBHOOKS_FILE),
+                array(),
+                WP_POST_UPSERT_WEBHOOKS_VERSION,
+                true
+            );
+        } else {
+            // Logs page assets
+            wp_enqueue_style(
+                'wp-post-upsert-webhooks-logs',
+                plugins_url('assets/css/logs.css', WP_POST_UPSERT_WEBHOOKS_FILE),
+                array(),
+                WP_POST_UPSERT_WEBHOOKS_VERSION
+            );
+
+            wp_enqueue_script(
+                'wp-post-upsert-webhooks-logs',
+                plugins_url('assets/js/logs.js', WP_POST_UPSERT_WEBHOOKS_FILE),
+                array(),
+                WP_POST_UPSERT_WEBHOOKS_VERSION,
+                true
+            );
+        }
     }
 
     public function get_options() {

@@ -7,7 +7,7 @@
  * Author URI:      https://kuba.wtf
  * Text Domain:     wp-post-upsert-webhooks
  * Domain Path:     /languages
- * Version:         0.1.1
+ * Version:         0.2.0
  *
  * @package         Wp_Post_Upsert_Webhooks
  */
@@ -16,8 +16,58 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_POST_UPSERT_WEBHOOKS_VERSION', '0.1.1');
+define('WP_POST_UPSERT_WEBHOOKS_VERSION', '0.2.0');
 define('WP_POST_UPSERT_WEBHOOKS_FILE', __FILE__);
+
+// Create webhook logs table on plugin activation
+function wp_post_upsert_webhooks_install() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'wp_post_upsert_webhooks_logs';
+    $charset_collate = $wpdb->get_charset_collate();
+    $db_version = WP_POST_UPSERT_WEBHOOKS_VERSION;
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+    $sql = "CREATE TABLE $table_name (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+        webhook_name varchar(255) NOT NULL,
+        webhook_url varchar(2083) NOT NULL,
+        post_id bigint(20) NOT NULL,
+        event_type varchar(50) NOT NULL,
+        status varchar(50) NOT NULL,
+        response_code int(11),
+        response_body text,
+        response_headers text,
+        request_headers text,
+        retry_count int(11) DEFAULT 0,
+        payload longtext NOT NULL,
+        timestamp datetime NOT NULL,
+        idempotency_key varchar(255) DEFAULT NULL,
+        PRIMARY KEY  (id),
+        KEY webhook_name (webhook_name),
+        KEY post_id (post_id),
+        KEY status (status),
+        KEY timestamp (timestamp),
+        KEY idx_idempotency_key (idempotency_key(191))
+    ) $charset_collate;";
+
+    dbDelta($sql);
+
+    // Update version
+    update_option('wp_post_upsert_webhooks_db_version', $db_version);
+}
+
+// Register activation hook
+register_activation_hook(__FILE__, 'wp_post_upsert_webhooks_install');
+
+// Check if we need to update
+function wp_post_upsert_webhooks_update_check() {
+    $current_version = get_option('wp_post_upsert_webhooks_db_version', '0.0.0');
+    if (version_compare($current_version, WP_POST_UPSERT_WEBHOOKS_VERSION, '<')) {
+        wp_post_upsert_webhooks_install();
+    }
+}
+add_action('plugins_loaded', 'wp_post_upsert_webhooks_update_check');
 
 // Load required files
 require_once plugin_dir_path(__FILE__) . 'includes/class-webhook-settings.php';
