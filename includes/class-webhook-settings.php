@@ -32,6 +32,11 @@ class WP_Post_Upsert_Webhooks_Settings {
                 'base' => 5,
                 'jitter' => 5
             )
+        ),
+        'log_retention' => array(
+            'enabled' => true,
+            'days' => 90,
+            'max_rows' => 1000
         )
     );
 
@@ -245,6 +250,11 @@ class WP_Post_Upsert_Webhooks_Settings {
                         'base' => max(1, intval($webhook['retry_settings']['exponential']['base'] ?? 5)),
                         'jitter' => min(50, max(0, intval($webhook['retry_settings']['exponential']['jitter'] ?? 5)))
                     )
+                ),
+                'log_retention' => array(
+                    'enabled' => !empty($webhook['log_retention']['enabled']),
+                    'days' => max(1, intval($webhook['log_retention']['days'] ?? 90)),
+                    'max_rows' => max(1, intval($webhook['log_retention']['max_rows'] ?? 1000))
                 )
             );
         }

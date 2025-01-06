@@ -9,14 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-01-06T02:52:34+00:00\n"
+"POT-Creation-Date: 2025-01-06T15:34:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wp-post-upsert-webhooks\n"
 
 #. Plugin Name of the plugin
 #: wp-post-upsert-webhooks.php
-#: includes/class-webhook-settings.php:71
+#: includes/class-webhook-settings.php:76
 msgid "Post Upsert Webhooks"
 msgstr ""
 
@@ -40,32 +40,32 @@ msgstr ""
 msgid "https://kuba.wtf"
 msgstr ""
 
-#: includes/class-webhook-settings.php:72
+#: includes/class-webhook-settings.php:77
 msgid "Post Webhooks"
 msgstr ""
 
-#: includes/class-webhook-settings.php:82
+#: includes/class-webhook-settings.php:87
 msgid "Webhook Settings"
 msgstr ""
 
-#: includes/class-webhook-settings.php:83
+#: includes/class-webhook-settings.php:88
 msgid "Settings"
 msgstr ""
 
-#: includes/class-webhook-settings.php:92
+#: includes/class-webhook-settings.php:97
 msgid "Webhook Logs"
 msgstr ""
 
-#: includes/class-webhook-settings.php:93
+#: includes/class-webhook-settings.php:98
 msgid "Logs"
 msgstr ""
 
-#: includes/class-webhook-settings.php:165
+#: includes/class-webhook-settings.php:170
 msgid "Webhook Endpoints"
 msgstr ""
 
-#: includes/class-webhook-settings.php:181
-#: includes/class-webhook-settings.php:182
+#: includes/class-webhook-settings.php:186
+#: includes/class-webhook-settings.php:187
 #: includes/views/partials/webhook-header.php:9
 msgid "Unnamed Webhook"
 msgstr ""
@@ -78,151 +78,178 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-full.php:13
+#: includes/views/webhook-template.php:18
 msgid "Enable this webhook"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-full.php:18
+#: includes/views/webhook-template.php:23
 msgid "Name:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-full.php:23
+#: includes/views/webhook-template.php:28
 msgid "Webhook name for identification"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-full.php:28
+#: includes/views/webhook-template.php:33
 msgid "URL:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-left.php:8
+#: includes/views/webhook-template.php:42
 msgid "HTTP Method:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-left.php:16
+#: includes/views/webhook-template.php:50
 msgid "Authorization Bearer Token:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-left.php:22
+#: includes/views/webhook-template.php:56
 msgid "Show"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-left.php:27
+#: includes/views/webhook-template.php:61
 msgid "Listen to changes of these Post Types:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-left.php:44
+#: includes/views/webhook-template.php:78
 msgid "Listen to changes for Posts in these Statuses:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:13
+#: includes/views/webhook-template.php:100
 msgid "Suppress duplicate webhook invocations based on the idempotency key. If unset webhook might be triggered on unimportant changes (see Idempotency Fields)."
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:18
+#: includes/views/webhook-template.php:105
 msgid "Idempotency Fields (changes to these fields will trigger the webhook):"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:21
+#: includes/views/webhook-template.php:108
 msgid "Title"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:22
+#: includes/views/webhook-template.php:109
 msgid "Content"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:23
+#: includes/views/webhook-template.php:110
 msgid "Excerpt"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:24
+#: includes/views/webhook-template.php:111
 msgid "Status"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:25
+#: includes/views/webhook-template.php:112
 msgid "Slug"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:26
+#: includes/views/webhook-template.php:113
 msgid "Event Type"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:27
+#: includes/views/webhook-template.php:114
 msgid "Categories"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:28
+#: includes/views/webhook-template.php:115
 msgid "Tags"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:29
+#: includes/views/webhook-template.php:116
 msgid "Author"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:45
+#: includes/views/webhook-template.php:132
 msgid "Retry:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:53
+#: includes/views/webhook-template.php:140
 msgid "Disabled"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:60
+#: includes/views/webhook-template.php:147
 msgid "Constant"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:67
+#: includes/views/webhook-template.php:154
 msgid "Exponential"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:73
+#: includes/views/webhook-template.php:160
 msgid "Max attempts:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:83
+#: includes/views/webhook-template.php:170
 msgid "Multiplier:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:93
+#: includes/views/webhook-template.php:180
 msgid "Base (in seconds):"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:101
+#: includes/views/webhook-template.php:188
 msgid "Delay:"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:110
+#: includes/views/webhook-template.php:197
 msgid "Milliseconds"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:111
+#: includes/views/webhook-template.php:198
 msgid "Seconds"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:112
+#: includes/views/webhook-template.php:199
 msgid "Minutes"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:113
+#: includes/views/webhook-template.php:200
 msgid "Hours"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:114
+#: includes/views/webhook-template.php:201
 msgid "Days"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:123
+#: includes/views/webhook-template.php:210
 msgid "delay = multiplier * base ^ (number of attempt)"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:127
+#: includes/views/webhook-template.php:214
 msgid "Randomization factor (percentage):"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:144
+#: includes/views/webhook-template.php:231
 msgid "Retry attempts"
 msgstr ""
 
-#: includes/views/partials/webhook-settings-right.php:154
+#: includes/views/webhook-template.php:239
+msgid "Log Retention"
+msgstr ""
+
+#. translators: This is a label for a checkbox that enables automatic log cleanup
+#: includes/views/webhook-template.php:249
+msgid "Enable automatic log cleanup"
+msgstr ""
+
+#: includes/views/webhook-template.php:255
+msgid "Maximum time to keep logs for:"
+msgstr ""
+
+#. translators: Label for the unit of time (days) in log retention settings
+#: includes/views/webhook-template.php:263
+msgid "days"
+msgstr ""
+
+#: includes/views/webhook-template.php:268
+msgid "Maximum number of log entries to keep:"
+msgstr ""
+
+#. translators: Description for the minimum log retention policy
+#: includes/views/webhook-template.php:277
+msgid "One most recent log entry will always be retained regardless of these settings."
+msgstr ""
+
+#: includes/views/webhook-template.php:286
 msgid "Retry #{{DELAY_INDEX}} Delay (seconds):"
 msgstr ""
 

@@ -82,11 +82,20 @@ add_action('plugins_loaded', 'wp_post_upsert_webhooks_update_check');
 // Load required files
 require_once plugin_dir_path(__FILE__) . 'includes/class-webhook-settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-webhook-handler.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-webhook-logs.php';
 
 // Initialize the plugin
 function wp_post_upsert_webhooks_init() {
     $settings = new WP_Post_Upsert_Webhooks_Settings();
     new WP_Post_Upsert_Webhooks_Handler($settings);
+    new WP_Post_Upsert_Webhooks_Logs($settings);
 }
 
 add_action('plugins_loaded', 'wp_post_upsert_webhooks_init');
+
+// Handle plugin deactivation
+register_deactivation_hook(__FILE__, 'wp_post_upsert_webhooks_deactivate');
+
+function wp_post_upsert_webhooks_deactivate() {
+    WP_Post_Upsert_Webhooks_Logs::deactivate();
+}
