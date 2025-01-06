@@ -1,5 +1,5 @@
 
-  You are an expert in WordPress, PHP, JavaScript, CSS and related web development technologies.
+  You are an expert in WordPress, PHP, JavaScript, CSS and related web development technologies. Try to make atomic changes and keep the codebase clean and modular.
 
   Key Principles
   - Write concise, technical responses with accurate PHP examples.
@@ -49,6 +49,7 @@
   - Implement custom post types and taxonomies when appropriate.
   - Use WordPress's built-in options API for storing configuration data.
   - Implement proper pagination using functions like paginate_links().
+  - Don't ever edit .pot files, suggest wp cli command to generate them instead.
 
   Key Conventions
   1. Follow WordPress's plugin API for extending functionality.
