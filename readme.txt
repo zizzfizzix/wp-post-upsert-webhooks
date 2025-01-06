@@ -29,6 +29,16 @@ WP Post Upsert Webhooks enables WordPress sites to send reliable webhook notific
 * Duplicate suppression with configurable fields
 * Comprehensive logging with webhook tracing
 * Automatic cleanup of webhook metadata
+* Configurable log retention with automatic cleanup
+
+**Log Retention Features:**
+
+* Per-webhook log retention settings
+* Configurable retention period (in days)
+* Maximum number of logs to keep per webhook
+* Automatic daily cleanup of old logs
+* Always preserves the most recent log entry
+* Option to disable cleanup and retain all logs
 
 **Use Cases:**
 
@@ -86,6 +96,7 @@ The plugin supports two retry modes:
    * Retry settings (constant or exponential backoff)
    * Idempotency fields
    * Duplicate suppression settings
+   * Log retention settings
 5. Each webhook configuration is automatically assigned a unique ID for tracking
 6. Use the Logs section to monitor webhook executions and troubleshoot any issues
 7. Configure retry settings based on your needs:
@@ -113,6 +124,19 @@ You can configure:
 * Base delay and multiplier for exponential calculations
 
 Failed webhook attempts are automatically retried based on your configuration, with detailed logging of each attempt.
+
+= How does log retention work? =
+
+Each webhook has its own log retention settings that control:
+* How long logs are kept (in days)
+* Maximum number of logs to retain
+* Option to disable cleanup and keep all logs
+
+The plugin automatically runs a daily cleanup task that:
+* Removes logs older than the specified retention period
+* Keeps only the specified maximum number of most recent logs
+* Always preserves at least one most recent log entry per webhook
+* Respects per-webhook settings
 
 = How does idempotency work? =
 
@@ -158,6 +182,13 @@ Each webhook can be configured to monitor specific:
 
 == Changelog ==
 
+= X.X.X =
+* Added configurable log retention settings per webhook
+* Added automatic daily cleanup of old logs
+* Added option to disable log cleanup per webhook
+* Added minimum retention of one most recent log entry per webhook
+* Added server-side validation of log retention settings
+
 = 0.2.0 =
 * Added unique IDs for webhook configurations to improve tracking and management
 * Fixed duplicate suppression logic to properly handle different webhook configurations
@@ -169,7 +200,6 @@ Each webhook can be configured to monitor specific:
 * Improved error handling and logging
 
 = 0.1.1 =
-
 * Fix some minor lingering rename issues
 
 = 0.1.0 =
@@ -182,6 +212,9 @@ Each webhook can be configured to monitor specific:
 * Comprehensive post data payload
 
 == Upgrade Notice ==
+
+= X.X.X =
+This version adds log retention settings and automatic cleanup to help manage webhook logs. No breaking changes.
 
 = 0.2.0 =
 This version improves webhook reliability with unique IDs, better duplicate handling, and improved retry logic. No breaking changes.
