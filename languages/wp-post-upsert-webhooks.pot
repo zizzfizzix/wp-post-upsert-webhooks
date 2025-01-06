@@ -1,0 +1,231 @@
+# Copyright (C) 2025 Kuba Serafinowski
+# This file is distributed under the same license as the Post Upsert Webhooks plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Upsert Webhooks 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-post-upsert-webhooks\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-01-06T02:52:34+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: wp-post-upsert-webhooks\n"
+
+#. Plugin Name of the plugin
+#: wp-post-upsert-webhooks.php
+#: includes/class-webhook-settings.php:71
+msgid "Post Upsert Webhooks"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wp-post-upsert-webhooks.php
+msgid "https://github.com/zizzfizzix/wp-post-upsert-webhooks"
+msgstr ""
+
+#. Description of the plugin
+#: wp-post-upsert-webhooks.php
+msgid "Sends webhook notifications when posts are created or updated"
+msgstr ""
+
+#. Author of the plugin
+#: wp-post-upsert-webhooks.php
+msgid "Kuba Serafinowski"
+msgstr ""
+
+#. Author URI of the plugin
+#: wp-post-upsert-webhooks.php
+msgid "https://kuba.wtf"
+msgstr ""
+
+#: includes/class-webhook-settings.php:72
+msgid "Post Webhooks"
+msgstr ""
+
+#: includes/class-webhook-settings.php:82
+msgid "Webhook Settings"
+msgstr ""
+
+#: includes/class-webhook-settings.php:83
+msgid "Settings"
+msgstr ""
+
+#: includes/class-webhook-settings.php:92
+msgid "Webhook Logs"
+msgstr ""
+
+#: includes/class-webhook-settings.php:93
+msgid "Logs"
+msgstr ""
+
+#: includes/class-webhook-settings.php:165
+msgid "Webhook Endpoints"
+msgstr ""
+
+#: includes/class-webhook-settings.php:181
+#: includes/class-webhook-settings.php:182
+#: includes/views/partials/webhook-header.php:9
+msgid "Unnamed Webhook"
+msgstr ""
+
+#: includes/views/partials/webhook-header.php:11
+msgid "Webhook ID"
+msgstr ""
+
+#: includes/views/partials/webhook-header.php:15
+msgid "Remove"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-full.php:13
+msgid "Enable this webhook"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-full.php:18
+msgid "Name:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-full.php:23
+msgid "Webhook name for identification"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-full.php:28
+msgid "URL:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-left.php:8
+msgid "HTTP Method:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-left.php:16
+msgid "Authorization Bearer Token:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-left.php:22
+msgid "Show"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-left.php:27
+msgid "Listen to changes of these Post Types:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-left.php:44
+msgid "Listen to changes for Posts in these Statuses:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:13
+msgid "Suppress duplicate webhook invocations based on the idempotency key. If unset webhook might be triggered on unimportant changes (see Idempotency Fields)."
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:18
+msgid "Idempotency Fields (changes to these fields will trigger the webhook):"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:21
+msgid "Title"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:22
+msgid "Content"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:23
+msgid "Excerpt"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:24
+msgid "Status"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:25
+msgid "Slug"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:26
+msgid "Event Type"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:27
+msgid "Categories"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:28
+msgid "Tags"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:29
+msgid "Author"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:45
+msgid "Retry:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:53
+msgid "Disabled"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:60
+msgid "Constant"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:67
+msgid "Exponential"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:73
+msgid "Max attempts:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:83
+msgid "Multiplier:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:93
+msgid "Base (in seconds):"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:101
+msgid "Delay:"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:110
+msgid "Milliseconds"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:111
+msgid "Seconds"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:112
+msgid "Minutes"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:113
+msgid "Hours"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:114
+msgid "Days"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:123
+msgid "delay = multiplier * base ^ (number of attempt)"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:127
+msgid "Randomization factor (percentage):"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:144
+msgid "Retry attempts"
+msgstr ""
+
+#: includes/views/partials/webhook-settings-right.php:154
+msgid "Retry #{{DELAY_INDEX}} Delay (seconds):"
+msgstr ""
+
+#: includes/views/webhooks-section.php:28
+msgid "Add Webhook"
+msgstr ""

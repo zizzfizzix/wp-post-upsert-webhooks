@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 ?>
 <div>
     <div class="webhook-setting">
-        <label>HTTP Method:</label>
+        <label><?php esc_html_e('HTTP Method:', 'wp-post-upsert-webhooks'); ?></label>
         <select name="<?php echo $this->option_name; ?>[webhooks][<?php echo $index; ?>][http_method]">
             <option value="POST" <?php selected($webhook['http_method'], 'POST'); ?>>POST</option>
             <option value="GET" <?php selected($webhook['http_method'], 'GET'); ?>>GET</option>
@@ -13,18 +13,18 @@ if (!defined('ABSPATH')) {
     </div>
 
     <div class="webhook-setting">
-        <label>Authorization Bearer Token:</label>
+        <label><?php esc_html_e('Authorization Bearer Token:', 'wp-post-upsert-webhooks'); ?></label>
         <div class="webhook-setting-group">
             <input type="password"
                    name="<?php echo $this->option_name; ?>[webhooks][<?php echo $index; ?>][bearer_token]"
                    value="<?php echo esc_attr($webhook['bearer_token']); ?>"
                    class="regular-text">
-            <button type="button" class="button" onclick="toggleTokenVisibility(this)">Show</button>
+            <button type="button" class="button" onclick="toggleTokenVisibility(this)"><?php esc_html_e('Show', 'wp-post-upsert-webhooks'); ?></button>
         </div>
     </div>
 
     <div class="webhook-setting">
-        <label>Listen to changes of these Post Types:</label>
+        <label><?php esc_html_e('Listen to changes of these Post Types:', 'wp-post-upsert-webhooks'); ?></label>
         <?php
         $post_types = get_post_types(array('public' => true), 'objects');
         foreach ($post_types as $post_type) :
@@ -41,7 +41,7 @@ if (!defined('ABSPATH')) {
     </div>
 
     <div class="webhook-setting">
-        <label>Listen to changes for Posts in these Statuses:</label>
+        <label><?php esc_html_e('Listen to changes for Posts in these Statuses:', 'wp-post-upsert-webhooks'); ?></label>
         <?php
         $statuses = array('publish', 'pending', 'draft', 'private');
         foreach ($statuses as $status) :
@@ -52,7 +52,7 @@ if (!defined('ABSPATH')) {
                        name="<?php echo $this->option_name; ?>[webhooks][<?php echo $index; ?>][post_statuses][]"
                        value="<?php echo $status; ?>"
                        <?php echo $checked; ?>>
-                <?php echo ucfirst($status); ?>
+                <?php echo esc_html(ucfirst(__($status, 'wp-post-upsert-webhooks'))); ?>
             </label>
         <?php endforeach; ?>
     </div>

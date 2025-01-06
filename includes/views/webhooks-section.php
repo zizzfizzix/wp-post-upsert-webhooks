@@ -25,7 +25,7 @@ if (!defined('ABSPATH')) {
 </div>
 
 <div class="webhook-actions">
-    <button type="button" class="button" onclick="addWebhookEndpoint()">Add Webhook</button>
+    <button type="button" class="button" onclick="addWebhookEndpoint()"><?php esc_html_e('Add Webhook', 'wp-post-upsert-webhooks'); ?></button>
 </div>
 
 <template id="webhook-template">

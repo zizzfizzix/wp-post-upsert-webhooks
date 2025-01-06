@@ -19,6 +19,16 @@ if (!defined('ABSPATH')) {
 define('WP_POST_UPSERT_WEBHOOKS_VERSION', '0.2.0');
 define('WP_POST_UPSERT_WEBHOOKS_FILE', __FILE__);
 
+// Load plugin textdomain
+function wp_post_upsert_webhooks_load_textdomain() {
+    load_plugin_textdomain(
+        'wp-post-upsert-webhooks',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages'
+    );
+}
+add_action('init', 'wp_post_upsert_webhooks_load_textdomain');
+
 // Create webhook logs table on plugin activation
 function wp_post_upsert_webhooks_install() {
     global $wpdb;

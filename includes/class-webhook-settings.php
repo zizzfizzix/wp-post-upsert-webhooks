@@ -68,8 +68,8 @@ class WP_Post_Upsert_Webhooks_Settings {
     public function add_admin_menu() {
         // Add main menu
         add_menu_page(
-            'Post Upsert Webhooks',
-            'Post Webhooks',
+            __('Post Upsert Webhooks', 'wp-post-upsert-webhooks'),
+            __('Post Webhooks', 'wp-post-upsert-webhooks'),
             'manage_options',
             'wp-post-upsert-webhooks',
             array($this, 'render_settings_page'),
@@ -79,8 +79,8 @@ class WP_Post_Upsert_Webhooks_Settings {
         // Add Settings submenu
         add_submenu_page(
             'wp-post-upsert-webhooks',
-            'Webhook Settings',
-            'Settings',
+            __('Webhook Settings', 'wp-post-upsert-webhooks'),
+            __('Settings', 'wp-post-upsert-webhooks'),
             'manage_options',
             'wp-post-upsert-webhooks',
             array($this, 'render_settings_page')
@@ -89,8 +89,8 @@ class WP_Post_Upsert_Webhooks_Settings {
         // Add Logs submenu
         add_submenu_page(
             'wp-post-upsert-webhooks',
-            'Webhook Logs',
-            'Logs',
+            __('Webhook Logs', 'wp-post-upsert-webhooks'),
+            __('Logs', 'wp-post-upsert-webhooks'),
             'manage_options',
             'wp-post-upsert-webhooks-logs',
             array($this, 'render_logs_page')
@@ -162,7 +162,7 @@ class WP_Post_Upsert_Webhooks_Settings {
 
         add_settings_section(
             'webhook_endpoints_section',
-            'Webhook Endpoints',
+            __('Webhook Endpoints', 'wp-post-upsert-webhooks'),
             array($this, 'webhook_endpoints_section_callback'),
             'wp-post-upsert-webhooks'
         );
@@ -178,8 +178,8 @@ class WP_Post_Upsert_Webhooks_Settings {
         usort($webhooks, function($a, $b) {
             if (!empty($a['enabled']) && empty($b['enabled'])) return -1;
             if (empty($a['enabled']) && !empty($b['enabled'])) return 1;
-            $name_a = empty($a['name']) ? 'Unnamed Webhook' : $a['name'];
-            $name_b = empty($b['name']) ? 'Unnamed Webhook' : $b['name'];
+            $name_a = empty($a['name']) ? __('Unnamed Webhook', 'wp-post-upsert-webhooks') : $a['name'];
+            $name_b = empty($b['name']) ? __('Unnamed Webhook', 'wp-post-upsert-webhooks') : $b['name'];
             return strcasecmp($name_a, $name_b);
         });
 
