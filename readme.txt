@@ -4,7 +4,7 @@ Tags: webhooks, api, integration, posts, automation, rest-api
 Requires at least: 5.0
 Tested up to: 6.7.1
 Requires PHP: 7.0
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -182,7 +182,7 @@ Each webhook can be configured to monitor specific:
 
 == Changelog ==
 
-= X.X.X =
+= 0.3.0 =
 * Added configurable log retention settings per webhook
 * Added automatic daily cleanup of old logs
 * Added option to disable log cleanup per webhook
