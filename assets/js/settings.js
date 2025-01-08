@@ -48,6 +48,13 @@ function duplicateWebhookEndpoint(button) {
         idSpan.remove();
     }
 
+    // Update status indicator to show as disabled in the backend
+    const statusDot = newEndpoint.querySelector('.webhook-status');
+    if (statusDot) {
+        statusDot.classList.remove('enabled');
+        statusDot.classList.add('disabled');
+    }
+
     // Update the webhook name with [duplicate] suffix
     const nameInput = newEndpoint.querySelector('.webhook-name-input');
     const titleSpan = newEndpoint.querySelector('.webhook-title');
