@@ -7,7 +7,7 @@
  * Author URI:      https://kuba.wtf
  * Text Domain:     wp-post-upsert-webhooks
  * Domain Path:     /languages
- * Version:         0.3.0
+ * Version:         0.4.0
  *
  * @package         Wp_Post_Upsert_Webhooks
  */
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_POST_UPSERT_WEBHOOKS_VERSION', '0.3.0');
+define('WP_POST_UPSERT_WEBHOOKS_VERSION', '0.4.0');
 define('WP_POST_UPSERT_WEBHOOKS_FILE', __FILE__);
 
 // Load plugin textdomain
