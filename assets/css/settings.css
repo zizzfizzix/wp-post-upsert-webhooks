@@ -35,7 +35,14 @@
 .webhook-header-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+}
+
+.webhook-header-actions .button-secondary {
+    padding: 0 8px;
+    line-height: 26px;
+    height: 28px;
+    font-size: 13px;
 }
 
 /* Status indicator */

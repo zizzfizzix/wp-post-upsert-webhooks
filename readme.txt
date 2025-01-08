@@ -19,6 +19,7 @@ WP Post Upsert Webhooks enables WordPress sites to send reliable webhook notific
 * Configure multiple webhook endpoints with different settings
 * Unique IDs for each webhook configuration
 * Support for POST and GET HTTP methods
+* Easy configuration duplication with automatic naming
 * Flexible post type and status filtering
 * Advanced retry mechanisms with constant or exponential backoff
 * Configurable jitter for exponential backoff
@@ -98,8 +99,9 @@ The plugin supports two retry modes:
    * Duplicate suppression settings
    * Log retention settings
 5. Each webhook configuration is automatically assigned a unique ID for tracking
-6. Use the Logs section to monitor webhook executions and troubleshoot any issues
-7. Configure retry settings based on your needs:
+6. Use the "Duplicate" button to clone existing webhook configurations when needed
+7. Use the Logs section to monitor webhook executions and troubleshoot any issues
+8. Configure retry settings based on your needs:
    * Choose between constant delay or exponential backoff
    * Set appropriate delay values and retry limits
    * Add jitter for exponential backoff to prevent concurrent retries
@@ -164,6 +166,17 @@ The plugin provides a comprehensive logging system that includes:
 
 You can filter logs by webhook configuration and status to track specific webhook executions.
 
+= Can I duplicate webhook configurations? =
+
+Yes, each webhook configuration has a "Duplicate" button in its header that allows you to:
+* Create an exact copy of the webhook configuration
+* Automatically name it with a [duplicate] suffix
+* For multiple duplicates, numbers are added automatically ([duplicate 2], [duplicate 3], etc.)
+* Empty webhook names remain empty when duplicated
+* The duplicated webhook is expanded for immediate editing while the source webhook is collapsed
+
+This is particularly useful when you need multiple similar webhook configurations with only minor differences.
+
 = Can I send webhooks for specific post types only? =
 
 Yes, you can configure each webhook endpoint to monitor specific post types and statuses. This allows you to have different webhooks for different content types.
@@ -181,6 +194,13 @@ Each webhook can be configured to monitor specific:
 * Status transitions
 
 == Changelog ==
+
+= 0.4.0 =
+* Added webhook configuration duplication feature
+* Added "Duplicate" button to webhook headers for easy configuration cloning
+* Added automatic naming of duplicated webhooks with [duplicate] suffix
+* Added incremental numbering for multiple duplicates ([duplicate 2], [duplicate 3], etc.)
+* Improved UX by expanding new duplicates and collapsing source webhook
 
 = 0.3.0 =
 * Added configurable log retention settings per webhook
@@ -213,7 +233,10 @@ Each webhook can be configured to monitor specific:
 
 == Upgrade Notice ==
 
-= X.X.X =
+= 0.4.0 =
+This version adds webhook configuration duplication feature for easier setup of similar webhooks. No breaking changes.
+
+= 0.3.0 =
 This version adds log retention settings and automatic cleanup to help manage webhook logs. No breaking changes.
 
 = 0.2.0 =

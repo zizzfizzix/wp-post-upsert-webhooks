@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) {
         <?php endif; ?>
     </h3>
     <div class="webhook-header-actions">
+        <button type="button" class="button button-secondary" onclick="event.stopPropagation(); duplicateWebhookEndpoint(this)"><?php esc_html_e('Duplicate', 'wp-post-upsert-webhooks'); ?></button>
         <button type="button" class="button button-link-delete" onclick="event.stopPropagation(); removeWebhookEndpoint(this)"><?php esc_html_e('Remove', 'wp-post-upsert-webhooks'); ?></button>
         <span class="collapse-indicator<?php echo isset($is_collapsed) && $is_collapsed ? ' rotated' : ''; ?>">▼</span>
     </div>

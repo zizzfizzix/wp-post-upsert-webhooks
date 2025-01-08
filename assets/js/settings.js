@@ -12,6 +12,82 @@ function addWebhookEndpoint() {
     container.appendChild(newEndpoint);
 }
 
+function duplicateWebhookEndpoint(button) {
+    const container = document.getElementById('webhook-endpoints');
+    const sourceEndpoint = button.closest('.webhook-endpoint');
+    const index = container.children.length;
+
+    // Store the HTTP method before cloning
+    const sourceHttpMethod = sourceEndpoint.querySelector('select[name*="[http_method]"]').value;
+
+    // Collapse the source webhook if it's expanded
+    const sourceContent = sourceEndpoint.querySelector('.webhook-content');
+    const sourceIndicator = sourceEndpoint.querySelector('.collapse-indicator');
+    if (!sourceContent.classList.contains('collapsed')) {
+        sourceContent.classList.add('collapsed');
+        sourceIndicator.classList.add('rotated');
+    }
+
+    // Clone the source endpoint
+    const newEndpoint = sourceEndpoint.cloneNode(true);
+
+    // Update all input names with new index
+    newEndpoint.querySelectorAll('[name]').forEach(el => {
+        el.name = el.name.replace(/\[webhooks\]\[\d+\]/, `[webhooks][${index}]`);
+    });
+
+    // Set the HTTP method in the cloned endpoint
+    const httpMethodSelect = newEndpoint.querySelector('select[name*="[http_method]"]');
+    if (httpMethodSelect) {
+        httpMethodSelect.value = sourceHttpMethod;
+    }
+
+    // Clear the webhook ID to ensure a new one is generated
+    const idSpan = newEndpoint.querySelector('.webhook-id');
+    if (idSpan) {
+        idSpan.remove();
+    }
+
+    // Update the webhook name with [duplicate] suffix
+    const nameInput = newEndpoint.querySelector('.webhook-name-input');
+    const titleSpan = newEndpoint.querySelector('.webhook-title');
+    if (nameInput) {
+        const currentName = nameInput.value.trim();
+
+        // Only add duplicate suffix if the name is not empty
+        if (currentName) {
+            const duplicateMatch = currentName.match(/\[duplicate( (\d+))?\]$/);
+
+            let newName;
+            if (!duplicateMatch) {
+                newName = `${currentName} [duplicate]`;
+            } else {
+                const number = duplicateMatch[2];
+                if (!number) {
+                    newName = currentName.replace(/\[duplicate\]$/, '[duplicate 2]');
+                } else {
+                    const nextNumber = parseInt(number) + 1;
+                    newName = currentName.replace(/\[duplicate \d+\]$/, `[duplicate ${nextNumber}]`);
+                }
+            }
+
+            nameInput.value = newName;
+            if (titleSpan) {
+                titleSpan.textContent = newName;
+            }
+        }
+    }
+
+    // Expand the new webhook
+    const content = newEndpoint.querySelector('.webhook-content');
+    const indicator = newEndpoint.querySelector('.collapse-indicator');
+    content.classList.remove('collapsed');
+    indicator.classList.remove('rotated');
+
+    // Append the new webhook
+    container.appendChild(newEndpoint);
+}
+
 function removeWebhookEndpoint(button) {
     const endpoint = button.closest('.webhook-endpoint');
     if (document.querySelectorAll('.webhook-endpoint').length > 1) {
